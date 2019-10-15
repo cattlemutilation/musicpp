@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="C:/Users/jorilla/musicplayer/musicplayer/playertest_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="playertest" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_unsigned" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="26" />
+   <wvobject fp_name="/playertest/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/spk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">spk</obj_property>
+      <obj_property name="ObjectShortName">spk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/p_state" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">p_state</obj_property>
+      <obj_property name="ObjectShortName">p_state</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/n_state" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">n_state</obj_property>
+      <obj_property name="ObjectShortName">n_state</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/char" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">char[7:0]</obj_property>
+      <obj_property name="ObjectShortName">char[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_isstart" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">s_isstart</obj_property>
+      <obj_property name="ObjectShortName">s_isstart</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_isend" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">s_isend</obj_property>
+      <obj_property name="ObjectShortName">s_isend</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/testing" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">testing</obj_property>
+      <obj_property name="ObjectShortName">testing</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/mem_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mem_addr[10:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_addr[10:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/next_addr_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">next_addr_en</obj_property>
+      <obj_property name="ObjectShortName">next_addr_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_len_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">s_len_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">s_len_in[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_note_len" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">s_note_len[4:0]</obj_property>
+      <obj_property name="ObjectShortName">s_note_len[4:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/set_semiq_multiple/count" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">count[4:0]</obj_property>
+      <obj_property name="ObjectShortName">count[4:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_semiq_len" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">s_semiq_len[26:0]</obj_property>
+      <obj_property name="ObjectShortName">s_semiq_len[26:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/set_semiq_len/count" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">count[26:0]</obj_property>
+      <obj_property name="ObjectShortName">count[26:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/set_semiq_len/zero" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">zero</obj_property>
+      <obj_property name="ObjectShortName">zero</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_pitch_in" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">s_pitch_in[7:0]</obj_property>
+      <obj_property name="ObjectShortName">s_pitch_in[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/set_output_freq/max_count" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">max_count[18:0]</obj_property>
+      <obj_property name="ObjectShortName">max_count[18:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_fcount" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">s_fcount[18:0]</obj_property>
+      <obj_property name="ObjectShortName">s_fcount[18:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/set_output_freq/count" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">count[18:0]</obj_property>
+      <obj_property name="ObjectShortName">count[18:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/play_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">play_en</obj_property>
+      <obj_property name="ObjectShortName">play_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_freset" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">s_freset</obj_property>
+      <obj_property name="ObjectShortName">s_freset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_notefin" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">s_notefin</obj_property>
+      <obj_property name="ObjectShortName">s_notefin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_freqfin" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">s_freqfin</obj_property>
+      <obj_property name="ObjectShortName">s_freqfin</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_songfin" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">s_songfin</obj_property>
+      <obj_property name="ObjectShortName">s_songfin</obj_property>
+   </wvobject>
+</wave_config>
