@@ -12,7 +12,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="26" />
+   <WVObjectSize size="32" />
    <wvobject fp_name="/playertest/clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -32,6 +32,33 @@
    <wvobject fp_name="/playertest/uut/n_state" type="other" db_ref_id="1">
       <obj_property name="ElementShortName">n_state</obj_property>
       <obj_property name="ObjectShortName">n_state</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_anode" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">s_anode[3:0]</obj_property>
+      <obj_property name="ObjectShortName">s_anode[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_curr_digit" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">s_curr_digit[3:0]</obj_property>
+      <obj_property name="ObjectShortName">s_curr_digit[3:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/disp_4ms_count/count" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">count[18:0]</obj_property>
+      <obj_property name="ObjectShortName">count[18:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_disp_clk_zero" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">s_disp_clk_zero</obj_property>
+      <obj_property name="ObjectShortName">s_disp_clk_zero</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_disp_cntr_cnt" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">s_disp_cntr_cnt[1:0]</obj_property>
+      <obj_property name="ObjectShortName">s_disp_cntr_cnt[1:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_disp_cntr_zero" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">s_disp_cntr_zero</obj_property>
+      <obj_property name="ObjectShortName">s_disp_cntr_zero</obj_property>
    </wvobject>
    <wvobject fp_name="/playertest/uut/char" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">char[7:0]</obj_property>
@@ -74,13 +101,13 @@
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/playertest/uut/s_semiq_len" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">s_semiq_len[26:0]</obj_property>
-      <obj_property name="ObjectShortName">s_semiq_len[26:0]</obj_property>
+      <obj_property name="ElementShortName">s_semiq_len[27:0]</obj_property>
+      <obj_property name="ObjectShortName">s_semiq_len[27:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/playertest/uut/set_semiq_len/count" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">count[26:0]</obj_property>
-      <obj_property name="ObjectShortName">count[26:0]</obj_property>
+      <obj_property name="ElementShortName">count[27:0]</obj_property>
+      <obj_property name="ObjectShortName">count[27:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/playertest/uut/set_semiq_len/zero" type="logic" db_ref_id="1">

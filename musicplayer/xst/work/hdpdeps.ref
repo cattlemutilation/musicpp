@@ -1,0 +1,124 @@
+V3 64
+FL C:/Users/jorilla/musicplayer/musicplayer/addr_counter.vhd 2019/10/12.22:57:29 P.20131013
+EN work/addr_counter 1572315649 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/addr_counter.vhd \
+      PB ieee/std_logic_1164 1381692176 PB ieee/STD_LOGIC_UNSIGNED 1381692179 \
+      PB ieee/std_logic_arith 1381692177
+AR work/addr_counter/Behavioral 1572315650 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/addr_counter.vhd \
+      EN work/addr_counter 1572315649
+FL C:/Users/jorilla/musicplayer/musicplayer/bin_to_7seg.vhd 2019/10/29.13:13:34 P.20131013
+EN work/bin_to_7seg 1572315667 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/bin_to_7seg.vhd \
+      PB ieee/std_logic_1164 1381692176
+AR work/bin_to_7seg/Behavioral 1572315668 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/bin_to_7seg.vhd \
+      EN work/bin_to_7seg 1572315667
+FL C:/Users/jorilla/musicplayer/musicplayer/comparator.vhd 2019/10/13.16:08:20 P.20131013
+EN work/comparator 1572315647 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/comparator.vhd \
+      PB ieee/std_logic_1164 1381692176 PB ieee/std_logic_arith 1381692177 \
+      PB ieee/STD_LOGIC_UNSIGNED 1381692179
+AR work/comparator/Behavioral 1572315648 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/comparator.vhd \
+      EN work/comparator 1572315647
+FL C:/Users/jorilla/musicplayer/musicplayer/freq_counter.vhd 2019/10/14.21:30:36 P.20131013
+EN work/freq_counter 1572315655 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/freq_counter.vhd \
+      PB ieee/std_logic_1164 1381692176 PB ieee/STD_LOGIC_UNSIGNED 1381692179 \
+      PB ieee/std_logic_arith 1381692177
+AR work/freq_counter/Behavioral 1572315656 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/freq_counter.vhd \
+      EN work/freq_counter 1572315655
+FL C:/Users/jorilla/musicplayer/musicplayer/freq_decoder.vhd 2019/10/03.23:27:45 P.20131013
+EN work/freq_decoder 1572315653 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/freq_decoder.vhd \
+      PB ieee/std_logic_1164 1381692176
+AR work/freq_decoder/Behavioral 1572315654 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/freq_decoder.vhd \
+      EN work/freq_decoder 1572315653
+FL C:/Users/jorilla/musicplayer/musicplayer/musicplayer.vhd 2019/10/29.13:20:40 P.20131013
+EN work/musicplayer 1572315677 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/musicplayer.vhd \
+      PB ieee/std_logic_1164 1381692176 PB ieee/std_logic_arith 1381692177 \
+      PB ieee/STD_LOGIC_UNSIGNED 1381692179
+AR work/musicplayer/Behavioral 1572315678 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/musicplayer.vhd \
+      EN work/musicplayer 1572315677 CP comparator CP s_tempo_in CP addr_counter \
+      CP rom CP freq_decoder CP freq_counter CP note_len_decoder CP note_len_counter \
+      CP tempo_decoder CP semiq_counter CP tempo_dig_breakdown CP bin_to_7seg \
+      CP seg_disp_clk_4ms CP seg_disp_counter CP seg_disp_decoder CP mux_3to1_4b
+FL C:/Users/jorilla/musicplayer/musicplayer/mux_3to1_4b.vhd 2019/10/29.11:04:18 P.20131013
+EN work/mux_3to1_4b 1572315675 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/mux_3to1_4b.vhd \
+      PB ieee/std_logic_1164 1381692176
+AR work/mux_3to1_4b/Behavioral 1572315676 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/mux_3to1_4b.vhd \
+      EN work/mux_3to1_4b 1572315675
+FL C:/Users/jorilla/musicplayer/musicplayer/note_len_counter.vhd 2019/10/15.11:07:47 P.20131013
+EN work/note_len_counter 1572315659 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/note_len_counter.vhd \
+      PB ieee/std_logic_1164 1381692176 PB ieee/STD_LOGIC_UNSIGNED 1381692179 \
+      PB ieee/std_logic_arith 1381692177
+AR work/note_len_counter/Behavioral 1572315660 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/note_len_counter.vhd \
+      EN work/note_len_counter 1572315659
+FL C:/Users/jorilla/musicplayer/musicplayer/note_len_decoder.vhd 2019/10/15.12:24:32 P.20131013
+EN work/note_len_decoder 1572315657 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/note_len_decoder.vhd \
+      PB ieee/std_logic_1164 1381692176
+AR work/note_len_decoder/Behavioral 1572315658 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/note_len_decoder.vhd \
+      EN work/note_len_decoder 1572315657
+FL C:/Users/jorilla/musicplayer/musicplayer/rom.vhd 2019/10/20.22:55:10 P.20131013
+EN work/rom 1572315651 FL C:/Users/jorilla/musicplayer/musicplayer/rom.vhd \
+      PB ieee/std_logic_1164 1381692176 PB ieee/std_logic_arith 1381692177 \
+      PB ieee/STD_LOGIC_UNSIGNED 1381692179
+AR work/rom/Behavioral 1572315652 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/rom.vhd EN work/rom 1572315651
+FL C:/Users/jorilla/musicplayer/musicplayer/seg_disp_clk_4ms.vhd 2019/10/29.12:32:38 P.20131013
+EN work/seg_disp_clk_4ms 1572315669 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/seg_disp_clk_4ms.vhd \
+      PB ieee/std_logic_1164 1381692176 PB ieee/std_logic_arith 1381692177 \
+      PB ieee/STD_LOGIC_UNSIGNED 1381692179
+AR work/seg_disp_clk_4ms/Behavioral 1572315670 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/seg_disp_clk_4ms.vhd \
+      EN work/seg_disp_clk_4ms 1572315669
+FL C:/Users/jorilla/musicplayer/musicplayer/seg_disp_counter.vhd 2019/10/29.11:51:46 P.20131013
+EN work/seg_disp_counter 1572315671 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/seg_disp_counter.vhd \
+      PB ieee/std_logic_1164 1381692176 PB ieee/std_logic_arith 1381692177 \
+      PB ieee/STD_LOGIC_UNSIGNED 1381692179
+AR work/seg_disp_counter/Behavioral 1572315672 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/seg_disp_counter.vhd \
+      EN work/seg_disp_counter 1572315671
+FL C:/Users/jorilla/musicplayer/musicplayer/seg_disp_decoder.vhd 2019/10/29.13:17:17 P.20131013
+EN work/seg_disp_decoder 1572315673 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/seg_disp_decoder.vhd \
+      PB ieee/std_logic_1164 1381692176
+AR work/seg_disp_decoder/Behavioral 1572315674 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/seg_disp_decoder.vhd \
+      EN work/seg_disp_decoder 1572315673
+FL C:/Users/jorilla/musicplayer/musicplayer/semiq_counter.vhd 2019/10/15.15:11:34 P.20131013
+EN work/semiq_counter 1572315663 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/semiq_counter.vhd \
+      PB ieee/std_logic_1164 1381692176 PB ieee/std_logic_arith 1381692177 \
+      PB ieee/STD_LOGIC_UNSIGNED 1381692179
+AR work/semiq_counter/Behavioral 1572315664 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/semiq_counter.vhd \
+      EN work/semiq_counter 1572315663
+FL C:/Users/jorilla/musicplayer/musicplayer/tempo_decoder.vhd 2019/10/29.13:20:36 P.20131013
+EN work/tempo_decoder 1572315661 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/tempo_decoder.vhd \
+      PB ieee/std_logic_1164 1381692176
+AR work/tempo_decoder/Behavioral 1572315662 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/tempo_decoder.vhd \
+      EN work/tempo_decoder 1572315661
+FL C:/Users/jorilla/musicplayer/musicplayer/tempo_dig_breakdown.vhd 2019/10/28.21:52:55 P.20131013
+EN work/tempo_dig_breakdown 1572315665 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/tempo_dig_breakdown.vhd \
+      PB ieee/std_logic_1164 1381692176 PB ieee/std_logic_arith 1381692177 \
+      PB ieee/STD_LOGIC_UNSIGNED 1381692179
+AR work/tempo_dig_breakdown/Behavioral 1572315666 \
+      FL C:/Users/jorilla/musicplayer/musicplayer/tempo_dig_breakdown.vhd \
+      EN work/tempo_dig_breakdown 1572315665

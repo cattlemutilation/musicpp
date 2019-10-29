@@ -37,6 +37,8 @@ entity musicplayer is
 			  addr : out std_Logic_Vector(22 downto 0);	-- don't need for now, interface with ram
 			  swt : in std_Logic_vector(7 downto 0);
 			  led : out std_logic_Vector(7 downto 0);
+			  disp : out std_logic_vector(3 downto 0);	-- which led is lit
+			  seg : out std_logic_vector(6 downto 0);		-- which segments of 7seg display are lit
            spk : inout  STD_LOGIC);
 end musicplayer;
 
@@ -102,10 +104,50 @@ component comparator is
            finish : out  STD_LOGIC);
 end component;
 
+component bin_to_7seg is
+    Port ( digit : in  STD_LOGIC_VECTOR (3 downto 0);
+           disp_7seg : out  STD_LOGIC_VECTOR (6 downto 0));
+end component;
+
+component tempo_dig_breakdown is
+    Port (	tempo : in  STD_LOGIC_VECTOR (6 downto 0);
+           dig3 : out  STD_LOGIC_VECTOR (3 downto 0);
+           dig2 : out  STD_LOGIC_VECTOR (3 downto 0);
+           dig1 : out  STD_LOGIC_VECTOR (3 downto 0));
+end component;
+
+component seg_disp_clk_4ms is
+    Port ( clk : in  STD_LOGIC;
+           rst : in  STD_LOGIC;
+           en : in  STD_LOGIC;
+           zero : out  STD_LOGIC);
+end component;
+
+component seg_disp_counter is
+    Port ( clk : in  STD_LOGIC;
+           rst : in  STD_LOGIC;
+			  en : in STD_LOGIC;
+			  cnt : out std_logic_vector(1 downto 0);
+           zero : out  STD_LOGIC);
+end component;
+
+component seg_disp_decoder is
+    Port ( rotation : in  STD_LOGIC_VECTOR (1 downto 0);
+           anode_enable : out  STD_LOGIC_VECTOR (3 downto 0));
+end component;
+
+component mux_3to1_4b is
+    Port ( sel : in  STD_LOGIC_VECTOR (1 downto 0);
+           x : in  STD_LOGIC_VECTOR (3 downto 0);
+           y : in  STD_LOGIC_VECTOR (3 downto 0);
+           z : in  STD_LOGIC_VECTOR (3 downto 0);
+           q : out  STD_LOGIC_VECTOR (3 downto 0));
+end component;
 
 -------------------------------end components-----------------------------------
+--------------------------------------------------------------------------------
 
-
+-----------------------------------------------------------------------------
 ---------------------------------signals-------------------------------------
 	signal note: std_logic;
 	signal one: std_logic;
@@ -117,6 +159,10 @@ end component;
 	signal s_isend : std_logic;
 	signal play_en : std_logic;
 	signal testing : std_logic;
+	
+	signal s_tempo_hundr : std_logic_vector(3 downto 0);
+	signal s_tempo_tens : std_logic_vector(3 downto 0);
+	signal s_tempo_ones : std_logic_vector(3 downto 0);
 	
 	signal s_pitch_in : std_logic_vector(7 downto 0);
 	signal s_len_in	: std_logic_vector(7 downto 0);
@@ -135,9 +181,23 @@ end component;
 	
 	signal clkdiv: std_logic_vector(24 downto 0);
 	
+	----------------signals for led display------------------------
+	signal s_anode : std_logic_vector(3 downto 0);
+	signal s_curr_digit : std_logic_vector(3 downto 0); -- binary value for current digit  be displayed
+	signal s_cathode : std_logic_vector(6 downto 0);
+	
+	signal s_disp_clk_en : std_logic;
+	signal s_disp_clk_rst : std_logic;
+	signal s_disp_clk_zero : std_logic;
+	signal s_disp_cntr_en : std_logic;
+	signal s_disp_cntr_rst : std_logic;
+	signal s_disp_cntr_cnt : std_logic_vector(1 downto 0);
+	signal s_disp_cntr_zero : std_logic;
+	
 	type state_type is (init, reset, start, next_char, len, pitch, play, finish);
 	signal p_state, n_state : state_type;
 --------------------------------- end signals----------------------------------
+-------------------------------------------------------------------------------
 begin
 	one <= '1';
 	process (clk)
@@ -148,7 +208,9 @@ begin
 		end process;
 		
 check_start_finish: comparator port map(char, s_isstart, s_isend);
-		
+
+------------------------------------------------------------------------------
+-------------------------state transition logic-------------------------------		
 FSM_TRANSITON:
 	process(p_state, rst, s_isstart, s_isend, s_notefin, s_songfin)
 		begin
@@ -200,8 +262,10 @@ FSM_TRANSITON:
 			end if;
 		end process;
 	
+-------------------------------------------------------------------------------------
+------------------------------------------control signals----------------------------
 FSM_CONTROL:
-	s_tempo_in <= "0111100";
+	s_tempo_in <= "1111000";
 	s_songfin <= '1' when p_state = finish else '0';
 	
 	next_addr_en <= '1' when n_state = next_char else
@@ -210,8 +274,15 @@ FSM_CONTROL:
 	play_en <= '1' when n_state = play else '0';
 	s_freset <= '1' when p_state = pitch or s_freqfin = '1' else '0';
 	s_lreset <= '1' when p_state = len else '0';
-	--------------synchro issue it's resetting one clock cycle too soon------------------------
 	s_sreset <= '1' when n_state = len or (s_notefin = '0' and s_semifin = '1') else '0'; --change to tempo later
+	
+	-------------------led display control signals-------------------------------
+	s_disp_clk_rst <= '1' when p_state = init or p_state = reset else s_disp_clk_zero;
+	s_disp_cntr_rst <= '1' when p_state = init or p_state = reset else s_disp_cntr_zero;
+	
+	s_disp_clk_en <= '0' when p_state = init or p_state = reset else '1';
+	s_disp_cntr_en <= '0' when p_state = init or p_state = reset else '1';
+	-----------------------------------------------------------------------------
 	
 	
 	next_data_addr: addr_counter port map(clk, rst, next_addr_en, mem_addr);	-- count up to next addr
@@ -225,8 +296,9 @@ FSM_CONTROL:
 	
 	get_tempo: tempo_decoder port map(s_tempo_in, s_semiq_len);
 	set_semiq_len : semiq_counter port map(clk, s_sreset, play_en, s_semiq_len, s_semifin);	-- count len of semiq
-	
-	
+
+----------------------------------------------------------------
+------------------------datapth---------------------------------
 FSM_DATAPATH:
 	process(p_state, s_freset)
 	begin
@@ -257,6 +329,19 @@ FSM_DATAPATH:
 	end process;
 
 	led <= swt;	
+	
+----display
+get_tempo_digits: 			tempo_dig_breakdown port map(s_tempo_in, s_tempo_hundr, s_tempo_tens, s_tempo_ones);
+dig_to_7seg : 					bin_to_7seg port map(s_curr_digit, s_cathode);
+disp_4ms_count: 				seg_disp_clk_4ms port map(clk, s_disp_clk_rst, s_disp_clk_en, s_disp_clk_zero);
+disp_anode_rotation: 		seg_disp_counter port map(s_disp_clk_zero, s_disp_cntr_rst, s_disp_cntr_en, s_disp_cntr_cnt, s_disp_cntr_zero);
+decode_to_anode : 			seg_disp_decoder port map(s_disp_cntr_cnt, s_anode);	-- produces anode mask
+select_digit_to_display : 	mux_3to1_4b port map(s_disp_cntr_cnt, s_tempo_hundr, s_tempo_tens, s_tempo_ones, s_curr_digit);
 
+disp <= s_anode;
+seg <= s_cathode;--s_cathode;
+
+--------------------------end display---------------------------
+----------------------------------------------------------------
 end Behavioral;
 

@@ -1,0 +1,5 @@
+set -tmpdir "C:/Users/jorilla/musicplayer/musicplayer/xst/projnav.tmp"
+set -xsthdpdir "C:/Users/jorilla/musicplayer/musicplayer/xst"
+elaborate
+-ifn bin_to_7seg.prj
+-ifmt mixed

@@ -1,0 +1,51 @@
+Running: fuse.exe -relaunch -intstyle "ise" -incremental -o "C:/Users/jorilla/musicplayer/musicplayer/playertest_isim_beh.exe" -prj "C:/Users/jorilla/musicplayer/musicplayer/playertest_beh.prj" "work.playertest" 
+ISim P.20131013 (signature 0x7708f090)
+Number of CPUs detected in this system: 8
+Turning on mult-threading, number of parallel sub-compilation jobs: 16 
+Determining compilation order of HDL files
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/tempo_dig_breakdown.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/tempo_decoder.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/semiq_counter.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/seg_disp_decoder.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/seg_disp_counter.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/seg_disp_clk_4ms.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/rom.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/note_len_decoder.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/note_len_counter.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/mux_3to1_4b.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/freq_decoder.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/freq_counter.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/comparator.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/bin_to_7seg.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/addr_counter.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/musicplayer.vhd" into library work
+Parsing VHDL file "C:/Users/jorilla/musicplayer/musicplayer/playertest.vhd" into library work
+Starting static elaboration
+Completed static elaboration
+Compiling package standard
+Compiling package std_logic_1164
+Compiling package std_logic_arith
+Compiling package std_logic_unsigned
+Compiling architecture behavioral of entity comparator [comparator_default]
+Compiling architecture behavioral of entity addr_counter [addr_counter_default]
+Compiling architecture behavioral of entity rom [rom_default]
+Compiling architecture behavioral of entity freq_decoder [freq_decoder_default]
+Compiling architecture behavioral of entity freq_counter [freq_counter_default]
+Compiling architecture behavioral of entity note_len_decoder [note_len_decoder_default]
+Compiling architecture behavioral of entity note_len_counter [note_len_counter_default]
+Compiling architecture behavioral of entity tempo_decoder [tempo_decoder_default]
+Compiling architecture behavioral of entity semiq_counter [semiq_counter_default]
+Compiling architecture behavioral of entity tempo_dig_breakdown [tempo_dig_breakdown_default]
+Compiling architecture behavioral of entity bin_to_7seg [bin_to_7seg_default]
+Compiling architecture behavioral of entity seg_disp_clk_4ms [seg_disp_clk_4ms_default]
+Compiling architecture behavioral of entity seg_disp_counter [seg_disp_counter_default]
+Compiling architecture behavioral of entity seg_disp_decoder [seg_disp_decoder_default]
+Compiling architecture behavioral of entity mux_3to1_4b [mux_3to1_4b_default]
+Compiling architecture behavioral of entity musicplayer [musicplayer_default]
+Compiling architecture behavior of entity playertest
+Time Resolution for simulation is 1ps.
+Waiting for 1 sub-compilation(s) to finish...
+Compiled 37 VHDL Units
+Built simulation executable C:/Users/jorilla/musicplayer/musicplayer/playertest_isim_beh.exe
+Fuse Memory Usage: 36816 KB
+Fuse CPU Usage: 905 ms

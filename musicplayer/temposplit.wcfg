@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="C:/Users/jorilla/musicplayer/musicplayer/test_tempo_split_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_unsigned" />
+            <top_module name="test_tempo_split" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="6" />
+   <wvobject fp_name="/test_tempo_split/tempo" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">tempo[6:0]</obj_property>
+      <obj_property name="ObjectShortName">tempo[6:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/test_tempo_split/dig3" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dig3[3:0]</obj_property>
+      <obj_property name="ObjectShortName">dig3[3:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/test_tempo_split/dig2" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dig2[3:0]</obj_property>
+      <obj_property name="ObjectShortName">dig2[3:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/test_tempo_split/dig1" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dig1[3:0]</obj_property>
+      <obj_property name="ObjectShortName">dig1[3:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/test_tempo_split/clock" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clock</obj_property>
+      <obj_property name="ObjectShortName">clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/test_tempo_split/clock_period" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">clock_period</obj_property>
+      <obj_property name="ObjectShortName">clock_period</obj_property>
+   </wvobject>
+</wave_config>

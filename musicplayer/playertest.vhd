@@ -45,7 +45,9 @@ ARCHITECTURE behavior OF playertest IS
          rst : IN  std_logic;
          addr : OUT  std_logic_vector(22 downto 0);
          swt : IN  std_logic_vector(7 downto 0);
-         led : OUT  std_logic_vector(7 downto 0);
+         led : OUT  std_logic_vector(7 downto 0);			
+			  disp : out std_logic_vector(3 downto 0);
+			  seg : out std_logic_vector(6 downto 0);
          spk : inOUT  std_logic
         );
     END COMPONENT;
