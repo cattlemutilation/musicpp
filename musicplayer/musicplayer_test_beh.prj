@@ -1,4 +1,0 @@
-vhdl work "freq_decoder.vhd"
-vhdl work "freq_counter.vhd"
-vhdl work "musicplayer.vhd"
-vhdl work "musicplayer_test.vhd"
