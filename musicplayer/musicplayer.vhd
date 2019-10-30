@@ -265,7 +265,7 @@ FSM_TRANSITON:
 -------------------------------------------------------------------------------------
 ------------------------------------------control signals----------------------------
 FSM_CONTROL:
-	s_tempo_in <= "1111000";
+	s_tempo_in <= "0111100";
 	s_songfin <= '1' when p_state = finish else '0';
 	
 	next_addr_en <= '1' when n_state = next_char else
@@ -282,8 +282,7 @@ FSM_CONTROL:
 	
 	s_disp_clk_en <= '0' when p_state = init or p_state = reset else '1';
 	s_disp_cntr_en <= '0' when p_state = init or p_state = reset else '1';
-	-----------------------------------------------------------------------------
-	
+	-----------------------------------------------------------------------------	
 	
 	next_data_addr: addr_counter port map(clk, rst, next_addr_en, mem_addr);	-- count up to next addr
 	read_data: rom port map(clk, rst, mem_addr, char);	
