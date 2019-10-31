@@ -21,19 +21,19 @@ NET "led<5>" LOC = "M13";
 NET "led<6>" LOC = "P14";
 NET "led<7>" LOC = "R16";
 
-#NET "disp<0>" LOC = "F12";			# enables each led
-#NET "disp<1>" LOC = "G13";
-#NET "disp<2>" LOC = "G12";
-#NET "disp<3>" LOC = "G14";
+NET "disp<0>" LOC = "F12";			# enables each led
+NET "disp<1>" LOC = "G13";
+NET "disp<2>" LOC = "G12";
+NET "disp<3>" LOC = "G14";
 
 # i took these pins from the sample program
-#NET "seg<0>" LOC = "F13"; # Bank = 2, Pin name = IO_L21P_2, Type = I/O, Signal name = R-CA
-#NET "seg<1>" LOC = "E13"; # Bank = 2, Pin name = IO_L19N_2, Type = I/O, Signal name = R-CB
-#NET "seg<2>" LOC = "G15"; # Bank = 2, Pin name = IO_L24P_2, Type = I/O, Signal name = R-CC
-#NET "seg<3>" LOC = "H13"; # Bank = 2, Pin name = IO_L39N_2, Type = I/O, Signal name = R-CD
-#NET "seg<4>" LOC = "J14"; # Bank = 3, Pin name = IO_L39N_3, Type = I/O, Signal name = R-CE
-#NET "seg<5>" LOC = "E14"; # Bank = 2, Pin name = IO_L19P_2, Type = I/O, Signal name = R-CF
-#NET "seg<6>" LOC = "G16"; # Bank = 2, Pin name = IO, Type = I/O, Signal name = R-CG
+NET "seg<0>" LOC = "F13"; # Bank = 2, Pin name = IO_L21P_2, Type = I/O, Signal name = R-CA
+NET "seg<1>" LOC = "E13"; # Bank = 2, Pin name = IO_L19N_2, Type = I/O, Signal name = R-CB
+NET "seg<2>" LOC = "G15"; # Bank = 2, Pin name = IO_L24P_2, Type = I/O, Signal name = R-CC
+NET "seg<3>" LOC = "H13"; # Bank = 2, Pin name = IO_L39N_2, Type = I/O, Signal name = R-CD
+NET "seg<4>" LOC = "J14"; # Bank = 3, Pin name = IO_L39N_3, Type = I/O, Signal name = R-CE
+NET "seg<5>" LOC = "E14"; # Bank = 2, Pin name = IO_L19P_2, Type = I/O, Signal name = R-CF
+NET "seg<6>" LOC = "G16"; # Bank = 2, Pin name = IO, Type = I/O, Signal name = R-CG
 
 NET "spk" LOC =  "T14";
 

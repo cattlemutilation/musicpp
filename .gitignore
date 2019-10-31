@@ -1,0 +1,7 @@
+*
+!*.vhd
+!*.wcfg
+!*.ucf
+!.gitignore
+!*.xise
+!*.bit

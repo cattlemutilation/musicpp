@@ -48,13 +48,18 @@ begin
 		if(falling_edge(clk)) then
 			if(rst = '1') then
 				count <= "1100001101001111111";	-- counts 4 ms for each digit display 400,000
+				zero <= '0';
 			elsif en = '1' then
-				count <= count - 1;
+				if count = 0 then
+					count <= "1100001101001111111";
+					zero <= '1';
+				else
+					count <= count - 1;
+					zero <= '0';
+				end if;
 			end if;
 		end if;
 	end process;
-	zero <= '1' when count = 0 else '0';
-
-
+	
 end Behavioral;
 
