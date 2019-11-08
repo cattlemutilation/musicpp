@@ -34,7 +34,13 @@ use ieee.std_logic_unsigned.all;
 entity musicplayer is
     Port ( clk : in  STD_LOGIC;
 				rst : in std_logic;
-			  addr : out std_Logic_Vector(22 downto 0);	-- don't need for now, interface with ram
+
+				pdb : inout std_logic_vector(7 downto 0);
+				astb : in std_logic;
+				dstb : in std_logic;
+				pwr : in std_logic;
+				pwait : out std_logic;			  
+			  
 			  swt : in std_Logic_vector(7 downto 0);
 			  led : out std_logic_Vector(7 downto 0);
 			  disp : out std_logic_vector(3 downto 0);	-- which led is lit
@@ -43,115 +49,115 @@ entity musicplayer is
 end musicplayer;
 
 architecture Behavioral of musicplayer is
---------------------------------components------------------------------------
+------------------------------------------------------------------------
+-- Component Declaration
+------------------------------------------------------------------------
+	component freq_decoder is
+		 Port ( note : in  STD_LOGIC_VECTOR (7 downto 0);
+				  count : out  STD_LOGIC_VECTOR (18 downto 0));
+	end component;
 
-component freq_decoder is
-    Port ( note : in  STD_LOGIC_VECTOR (7 downto 0);
-           count : out  STD_LOGIC_VECTOR (18 downto 0));
-end component;
+	component  freq_counter is
+		 Port ( clk : in STD_LOGIC;
+				  reset : in  STD_LOGIC;
+				  en	: in std_logic;
+					max_count : in  STD_LOGIC_VECTOR (18 downto 0);
+				  zero : out  STD_LOGIC);
+	end component;
 
-component  freq_counter is
-    Port ( clk : in STD_LOGIC;
-           reset : in  STD_LOGIC;
-			  en	: in std_logic;
-				max_count : in  STD_LOGIC_VECTOR (18 downto 0);
-           zero : out  STD_LOGIC);
-end component;
+	component note_len_decoder is
+		 Port ( note : in  STD_LOGIC_VECTOR (7 downto 0);
+				  semi_multiple : out  STD_LOGIC_VECTOR (4 downto 0));
+	end component;
 
-component note_len_decoder is
-    Port ( note : in  STD_LOGIC_VECTOR (7 downto 0);
-           semi_multiple : out  STD_LOGIC_VECTOR (4 downto 0));
-end component;
+	component note_len_counter is
+		 Port ( clk : in  STD_LOGIC;
+				  reset : in  STD_LOGIC;
+				  en : in std_logic;
+				  semi_multiples : in  STD_LOGIC_VECTOR (4 downto 0);
+				  zero : out  STD_LOGIC);
+	end component;
 
-component note_len_counter is
-    Port ( clk : in  STD_LOGIC;
-           reset : in  STD_LOGIC;
-			  en : in std_logic;
-           semi_multiples : in  STD_LOGIC_VECTOR (4 downto 0);
-           zero : out  STD_LOGIC);
-end component;
+	component tempo_decoder is
+		 Port ( tempo : in  STD_LOGIC_VECTOR (6 downto 0);
+				  beat_len : out  STD_LOGIC_VECTOR (27 downto 0));
+	end component;
 
-component tempo_decoder is
-    Port ( tempo : in  STD_LOGIC_VECTOR (6 downto 0);
-           beat_len : out  STD_LOGIC_VECTOR (27 downto 0));
-end component;
+	component semiq_counter is
+		 Port ( clk : in std_logic;
+					reset: in std_logic;
+					en : in std_logic;
+				 semi_len : in  STD_LOGIC_VECTOR (27 downto 0);
+				  zero: out std_logic);
+	end component;
 
-component semiq_counter is
-    Port ( clk : in std_logic;
-				reset: in std_logic;
+	component ram is
+		 Port ( clk : in  STD_LOGIC;
+				  rst : in  STD_LOGIC;
+				  addr : in  STD_LOGIC_VECTOR (10 downto 0);
+				  data : out  STD_LOGIC_VECTOR (7 downto 0));
+	end component;
+
+	component comparator is
+		 Port ( char : in  STD_LOGIC_VECTOR (7 downto 0);
+				  start : out  STD_LOGIC;
+				  finish : out  STD_LOGIC);
+	end component;
+
+	component bin_to_7seg is
+		 Port ( digit : in  STD_LOGIC_VECTOR (3 downto 0);
+				  disp_7seg : out  STD_LOGIC_VECTOR (6 downto 0));
+	end component;
+
+	component tempo_dig_breakdown is
+		 Port (	tempo : in  STD_LOGIC_VECTOR (6 downto 0);
+				  dig3 : out  STD_LOGIC_VECTOR (3 downto 0);
+				  dig2 : out  STD_LOGIC_VECTOR (3 downto 0);
+				  dig1 : out  STD_LOGIC_VECTOR (3 downto 0));
+	end component;
+
+	component seg_disp_clk_4ms is
+		 Port ( clk : in  STD_LOGIC;
+				  rst : in  STD_LOGIC;
+				  en : in  STD_LOGIC;
+				  zero : out  STD_LOGIC);
+	end component;
+
+	component seg_disp_counter is
+		 Port ( clk : in  STD_LOGIC;
+				  rst : in  STD_LOGIC;
+				  en : in STD_LOGIC;
+				  cnt : out std_logic_vector(1 downto 0);
+				  zero : out  STD_LOGIC);
+	end component;
+
+	component seg_disp_decoder is
+		 Port ( rotation : in  STD_LOGIC_VECTOR (1 downto 0);
+				  anode_enable : out  STD_LOGIC_VECTOR (3 downto 0));
+	end component;
+
+	component mux_3to1_4b is
+		 Port ( sel : in  STD_LOGIC_VECTOR (1 downto 0);
+				  x : in  STD_LOGIC_VECTOR (3 downto 0);
+				  y : in  STD_LOGIC_VECTOR (3 downto 0);
+				  z : in  STD_LOGIC_VECTOR (3 downto 0);
+				  q : out  STD_LOGIC_VECTOR (3 downto 0));
+	end component;
+
+	component ram_addr_counter is
+		port(clk : in std_logic;
+				rst : in std_logic;
 				en : in std_logic;
-			 semi_len : in  STD_LOGIC_VECTOR (27 downto 0);
-           zero: out std_logic);
-end component;
+				addr_out : out std_logic_vector(3 downto 0));
+	end component;
 
-component addr_counter is
-    Port ( clk : in  STD_LOGIC;
-           rst : in  STD_LOGIC;
-			  en : in std_logic;
-           addr_out : out  STD_LOGIC_VECTOR (10 downto 0));
-end component;
-
-component rom is
-    Port ( clk : in  STD_LOGIC;
-           rst : in  STD_LOGIC;
-           addr : in  STD_LOGIC_VECTOR (10 downto 0);
-           data : out  STD_LOGIC_VECTOR (7 downto 0));
-end component;
-
-component comparator is
-    Port ( char : in  STD_LOGIC_VECTOR (7 downto 0);
-           start : out  STD_LOGIC;
-           finish : out  STD_LOGIC);
-end component;
-
-component bin_to_7seg is
-    Port ( digit : in  STD_LOGIC_VECTOR (3 downto 0);
-           disp_7seg : out  STD_LOGIC_VECTOR (6 downto 0));
-end component;
-
-component tempo_dig_breakdown is
-    Port (	tempo : in  STD_LOGIC_VECTOR (6 downto 0);
-           dig3 : out  STD_LOGIC_VECTOR (3 downto 0);
-           dig2 : out  STD_LOGIC_VECTOR (3 downto 0);
-           dig1 : out  STD_LOGIC_VECTOR (3 downto 0));
-end component;
-
-component seg_disp_clk_4ms is
-    Port ( clk : in  STD_LOGIC;
-           rst : in  STD_LOGIC;
-           en : in  STD_LOGIC;
-           zero : out  STD_LOGIC);
-end component;
-
-component seg_disp_counter is
-    Port ( clk : in  STD_LOGIC;
-           rst : in  STD_LOGIC;
-			  en : in STD_LOGIC;
-			  cnt : out std_logic_vector(1 downto 0);
-           zero : out  STD_LOGIC);
-end component;
-
-component seg_disp_decoder is
-    Port ( rotation : in  STD_LOGIC_VECTOR (1 downto 0);
-           anode_enable : out  STD_LOGIC_VECTOR (3 downto 0));
-end component;
-
-component mux_3to1_4b is
-    Port ( sel : in  STD_LOGIC_VECTOR (1 downto 0);
-           x : in  STD_LOGIC_VECTOR (3 downto 0);
-           y : in  STD_LOGIC_VECTOR (3 downto 0);
-           z : in  STD_LOGIC_VECTOR (3 downto 0);
-           q : out  STD_LOGIC_VECTOR (3 downto 0));
-end component;
-
--------------------------------end components-----------------------------------
---------------------------------------------------------------------------------
-
------------------------------------------------------------------------------
----------------------------------signals-------------------------------------
+------------------------------------------------------------------------
+-- Signals
+------------------------------------------------------------------------
 	signal note: std_logic;
-	signal one: std_logic;
-	signal char: std_logic_vector(7 downto 0);
+	signal char_in: std_logic_vector(7 downto 0);	
+	signal char_out: std_logic_vector(7 downto 0);
+
 	signal mem_addr: std_logic_vector(10 downto 0);
 	signal next_addr_en : std_logic;
 	
@@ -179,9 +185,16 @@ end component;
 	signal s_notefin: std_logic;	-- semiq multiple/note len == 0
 	signal s_songfin : std_logic;	-- finish state
 	
-	signal clkdiv: std_logic_vector(24 downto 0);
+	signal s_ramaddr_rst : std_logic;
+	signal s_ramaddr_en : std_logic;
+	signal s_ramaddr : std_logic_vector(10 downto 0);
 	
-	----------------signals for led display------------------------
+	signal s_ramwr_en : std_logic;
+	
+	signal clkdiv: std_logic_vector(24 downto 0);
+------------------------------------------------------------------------
+-- signals for led display
+------------------------------------------------------------------------
 	signal s_anode : std_logic_vector(3 downto 0);
 	signal s_curr_digit : std_logic_vector(3 downto 0); -- binary value for current digit  be displayed
 	signal s_cathode : std_logic_vector(6 downto 0);
@@ -194,35 +207,148 @@ end component;
 	signal s_disp_cntr_cnt : std_logic_vector(1 downto 0);
 	signal s_disp_cntr_zero : std_logic;
 	
-	type state_type is (init, reset, start, next_char, len, pitch, play, finish);
-	signal p_state, n_state : state_type;
---------------------------------- end signals----------------------------------
--------------------------------------------------------------------------------
-begin
-	one <= '1';
-	process (clk)
-		begin
-			if clk = '0' and clk'Event then
-				clkdiv <= clkdiv + 1;
-			end if;
-		end process;
-		
-check_start_finish: comparator port map(char, s_isstart, s_isend);
+------------------------------------------------------------------------
+-- State Machine Constant + Signal Declarations - Taken from Nexys Sample.
+------------------------------------------------------------------------
+-- The following constants define state codes for the EPP port interface
+-- state machine. The high order bits of the state number give a unique
+-- state identifier. The low order bits are the state machine outputs for
+-- that state. This type of state machine implementation uses no
+-- combination logic to generate outputs which should produce glitch
+-- free outputs. 
 
-------------------------------------------------------------------------------
--------------------------state transition logic-------------------------------		
+	constant init		 : std_logic_vector(7 downto 0) := "0000" & "0000";
+	constant stEppReady : std_logic_vector(7 downto 0) := "0001" & "0000";
+	constant stEppAwrA : std_logic_vector(7 downto 0) := "0001" & "0100";
+	constant stEppAwrB : std_logic_vector(7 downto 0) := "0010" & "0001";
+	constant stEppArdA : std_logic_vector(7 downto 0) := "0011" & "0010";
+	constant stEppArdB : std_logic_vector(7 downto 0) := "0100" & "0011";
+	constant stEppDwrA : std_logic_vector(7 downto 0) := "0101" & "1000";
+	constant stEppDwrB : std_logic_vector(7 downto 0) := "0110" & "0001";
+	constant stEppDrdA : std_logic_vector(7 downto 0) := "0111" & "0010";
+	constant stEppDrdB : std_logic_vector(7 downto 0) := "1000" & "0011";
+
+
+	constant reset		 : std_logic_vector(7 downto 0) := "1001" & "0001";
+	constant start		 : std_logic_vector(7 downto 0) := "1010" & "0001";
+	constant	next_char : std_logic_vector(7 downto 0) := "1011" & "0001";
+	constant len		 : std_logic_vector(7 downto 0) := "1100" & "0001";
+	constant pitch		 : std_logic_vector(7 downto 0) := "1101" & "0001";
+	constant play		 : std_logic_vector(7 downto 0) := "1110" & "0001";
+	constant finish	 : std_logic_vector(7 downto 0) := "1111" & "0001";
+
+	signal p_state: std_logic_vector(7 downto 0) := stEppReady;
+	signal n_state : std_logic_vector(7 downto 0);
+	
+--type state_type is (init, reset, start, next_char, len, pitch, play, finish);
+--signal p_state, n_state : state_type;
+
+-- Internal control signales
+	signal ctlEppWait : std_logic;
+	signal ctlEppAstb : std_logic;
+	signal ctlEppDstb : std_logic;
+	signal ctlEppDir : std_logic;
+	signal ctlEppWr : std_logic;
+	signal ctlEppAwr : std_logic;
+	signal ctlEppDwr : std_logic;
+	signal busEppOut : std_logic_vector(7 downto 0);
+	signal busEppIn : std_logic_vector(7 downto 0);
+	signal busEppData : std_logic_vector(7 downto 0);
+	-- Registers
+	signal regEppAdr : std_logic_vector(3 downto 0);
+	signal regData0 : std_logic_vector(7 downto 0);
+	signal regData1 : std_logic_vector(7 downto 0);
+	signal regData2 : std_logic_vector(7 downto 0);
+	signal regData3 : std_logic_vector(7 downto 0);
+	signal regData4 : std_logic_vector(7 downto 0);
+	signal regData5 : std_logic_vector(7 downto 0);
+	signal regData6 : std_logic_vector(7 downto 0);
+	signal regData7 : std_logic_vector(7 downto 0);
+	signal regLed 	 : std_logic_vector(7 downto 0);
+	signal cntr 	 : std_logic_vector(23 downto 0);
+
+begin
+------------------------------------------------------------------------
+-- State Transition Logic
+------------------------------------------------------------------------
 FSM_TRANSITON:
 	process(p_state, rst, s_isstart, s_isend, s_notefin, s_songfin)
-		begin
+		begin		
 				case p_state is
 					when init =>
-							n_state <= init;
+						n_state <= init;
+						
 					when reset =>
 						if (rst = '0') then	-- if button is let go
-							n_state <= start;	
+							n_state <= stEppReady;	
 						else						-- button still being held
 							n_state <= reset;
 						end if;
+				
+					-- Idle state waiting for the beginning of an EPP cycle
+					when stEppReady =>
+						if ctl_txt_end = '1' then
+							stEppNext <= stEppFin;
+							
+						elsif ctlEppAstb = '0' then
+					-- Address read or write cycle
+							if ctlEppWr = '0' then
+								stEppNext <= stEppAwrA;
+							else
+								stEppNext <= stEppArdA;
+							end if;
+						elsif ctlEppDstb = '0' then
+					-- Data read or write cycle
+							if ctlEppWr = '0' then
+								stEppNext <= stEppDwrA;
+							else
+								stEppNext <= stEppDrdA;
+							end if;
+						else
+							-- Remain in ready state
+							stEppNext <= stEppReady;
+						end if;
+					-- Write address register
+					when stEppAwrA =>
+						stEppNext <= stEppAwrB;
+					when stEppAwrB =>
+						if ctlEppAstb = '0' then
+							stEppNext <= stEppAwrB;
+						else
+							stEppNext <= stEppReady;
+						end if;
+					-- Read address register
+					when stEppArdA =>
+						stEppNext <= stEppArdB;
+						when stEppArdB =>
+							if ctlEppAstb = '0' then
+								stEppNext <= stEppArdB;
+							else
+								stEppNext <= stEppReady;
+					end if;
+					-- Write data register
+					when stEppDwrA =>
+						stEppNext <= stEppDwrB;
+					when stEppDwrB =>
+						if ctlEppDstb = '0' then
+							stEppNext <= stEppDwrB;
+						else
+							stEppNext <= stEppReady;
+						end if;
+					-- Read data register
+					when stEppDrdA =>
+						stEppNext <= stEppDrdB;
+					when stEppDrdB =>
+						if ctlEppDstb = '0' then
+							stEppNext <= stEppDrdB;
+					else
+							stEppNext <= stEppReady;
+					end if;
+					-- Some unknown state
+					when others =>
+						stEppNext <= stEppReady;
+				
+
 					when start => 
 						if (s_isstart = '1') then -- 60
 							n_state <= next_char;	-- <
@@ -262,13 +388,52 @@ FSM_TRANSITON:
 			end if;
 		end process;
 	
--------------------------------------------------------------------------------------
-------------------------------------------control signals----------------------------
-FSM_CONTROL:
+------------------------------------------------------------------------
+-- Control Signals
+------------------------------------------------------------------------
+EPP_CONTROL:
+	ctlEppAstb <= astb;
+	ctlEppDstb <= dstb;
+	ctlEppWr <= pwr;
+	pwait <= ctlEppWait; -- drive WAIT from state machine output
+								-- Data bus direction control. The internal input data bus always
+								-- gets the port data bus. The port data bus drives the internal
+								-- output data bus onto the pins when the interface says we are doing
+								-- a read cycle and we are in one of the read cycles states in the
+								-- state machine.
+	busEppIn <= pdb;
+	pdb <= busEppOut when ctlEppWr = '1' and ctlEppDir = '1' else "ZZZZZZZZ";
+	-- Select either address or data onto the internal output data bus.
+	busEppOut <= "0000" & regEppAdr when ctlEppAstb = '0' else busEppData;
+	char_in <= busEppIn when ctl_wr_en = '1';
+	
+	s_ramaddr_rst <= '1' when rst = '1' else
+							'1' when p_state = start else
+							'0';
+	--rgLed <= regLed;
+	-- Decode the address register and select the appropriate data register
+	busEppData <= regData0 when regEppAdr = "0000" else
+						regData1 when regEppAdr = "0001" else
+						regData2 when regEppAdr = "0010" else
+						regData3 when regEppAdr = "0011" else
+						regData4 when regEppAdr = "0100" else
+						regData5 when regEppAdr = "0101" else
+						regData6 when regEppAdr = "0110" else
+						regData7 when regEppAdr = "0111" else
+						rgSwt when regEppAdr = "1000" else
+						"000" & rgBtn when regEppAdr = "1001" else
+						"00000000";
+						
+						
+	read_and_write_data: ram port map(clk, rst, s_ramwr_en, mem_addr, char_in, char_out);	
+
+MUSICPLAYER_CONTROL:
+
 	s_tempo_in <= "0111100";
 	s_songfin <= '1' when p_state = finish else '0';
 	
-	next_addr_en <= '1' when n_state = next_char else
+	next_addr_en <= '1' when p_state = stEppDwrB else
+						 '1' when n_state = next_char else
 						'1' when n_state = pitch else
 						'1' when n_state = start else '0';
 	play_en <= '1' when n_state = play else '0';
@@ -284,8 +449,7 @@ FSM_CONTROL:
 	s_disp_cntr_en <= '0' when p_state = init or p_state = reset else '1';
 	-----------------------------------------------------------------------------	
 	
-	next_data_addr: addr_counter port map(clk, rst, next_addr_en, mem_addr);	-- count up to next addr
-	read_data: rom port map(clk, rst, mem_addr, char);	
+	next_data_addr: ram_addr_counter port map(clk, s_ramaddr_rst, next_addr_en, mem_addr);	-- count up to next addr
 
 	get_frequency: freq_decoder port map(s_pitch_in, s_fcount);
 	set_output_freq: freq_counter port map(clk, s_freset, play_en, s_fcount, s_freqfin);	-- count pitch oscillation
@@ -295,9 +459,13 @@ FSM_CONTROL:
 	
 	get_tempo: tempo_decoder port map(s_tempo_in, s_semiq_len);
 	set_semiq_len : semiq_counter port map(clk, s_sreset, play_en, s_semiq_len, s_semifin);	-- count len of semiq
+	
+	check_start_finish: 			comparator port map(char_out, s_isstart, s_isend);
+	addr_count: 					ram_addr_counter port map(clk, s_ramaddr_rst, s_ramaddr_en, s_ramaddr);
 
-----------------------------------------------------------------
-------------------------datapth---------------------------------
+------------------------------------------------------------------------
+-- Datapath
+------------------------------------------------------------------------
 FSM_DATAPATH:
 	process(p_state, s_freset)
 	begin
@@ -309,10 +477,10 @@ FSM_DATAPATH:
 			when next_char =>
 				spk <= '0';
 				note <= '0';
-				s_len_in <= char;
+				s_len_in <= char_out;
 			when pitch =>		
 				spk <= '0';
-				s_pitch_in <= char;
+				s_pitch_in <= char_out;
 			when play =>	
 				if(s_freset = '1') then
 					spk <= not spk;
@@ -329,18 +497,112 @@ FSM_DATAPATH:
 
 	led <= swt;	
 	
-----display
+
+------------------------------------------------------------------------
+-- LCD display
+------------------------------------------------------------------------
 get_tempo_digits: 			tempo_dig_breakdown port map(s_tempo_in, s_tempo_hundr, s_tempo_tens, s_tempo_ones);
 dig_to_7seg : 					bin_to_7seg port map(s_curr_digit, s_cathode);
 disp_4ms_count: 				seg_disp_clk_4ms port map(clk, s_disp_clk_rst, s_disp_clk_en, s_disp_clk_zero);
 disp_anode_rotation: 		seg_disp_counter port map(s_disp_clk_zero, s_disp_cntr_rst, s_disp_cntr_en, s_disp_cntr_cnt, s_disp_cntr_zero);
 decode_to_anode : 			seg_disp_decoder port map(s_disp_cntr_cnt, s_anode);	-- produces anode mask
 select_digit_to_display : 	mux_3to1_4b port map(s_disp_cntr_cnt, s_tempo_hundr, s_tempo_tens, s_tempo_ones, s_curr_digit);
-
 disp <= s_anode;
 seg <= s_cathode;--s_cathode;
 
---------------------------end display---------------------------
-----------------------------------------------------------------
+------------------------------------------------------------------------
+-- EPP Data registers
+------------------------------------------------------------------------
+-- The following processes implement the interface registers. These
+-- registers just hold the value written so that it can be read back.
+-- In a real design, the contents of these registers would drive additional
+-- logic.
+-- The ctlEppDwr signal is an output from the state machine that says
+-- we are in a 'write data register' state. This is combined with the
+-- address in the address register to determine which register to write.
+	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+		begin
+			if clkMain = '1' and clkMain'Event then
+				if ctlEppDwr = '1' and regEppAdr = "0000" then
+					regData0 <= busEppIn;
+				end if;
+			end if;
+	end process;
+
+	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+		begin
+			if clkMain = '1' and clkMain'Event then
+				if ctlEppDwr = '1' and regEppAdr = "0001" then
+					regData1 <= busEppIn;
+				end if;
+			end if;
+	end process;
+
+	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+		begin
+			if clkMain = '1' and clkMain'Event then
+				if ctlEppDwr = '1' and regEppAdr = "0010" then
+					regData2 <= busEppIn;
+				end if;
+			end if;
+	end process;
+
+	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+		begin
+			if clkMain = '1' and clkMain'Event then
+				if ctlEppDwr = '1' and regEppAdr = "0011" then
+					regData3 <= busEppIn;
+				end if;
+			end if;
+	end process;
+
+	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+		begin
+			if clkMain = '1' and clkMain'Event then
+				if ctlEppDwr = '1' and regEppAdr = "0100" then
+					regData4 <= busEppIn;
+				end if;
+			end if;
+	end process;
+
+	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+		begin
+			if clkMain = '1' and clkMain'Event then
+				if ctlEppDwr = '1' and regEppAdr = "0101" then
+					regData5 <= busEppIn;
+				end if;
+			end if;
+	end process;
+
+	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+		begin
+			if clkMain = '1' and clkMain'Event then
+				if ctlEppDwr = '1' and regEppAdr = "0110" then
+					regData6 <= busEppIn;
+				end if;
+			end if;
+	end process;
+
+	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+		begin
+			if clkMain = '1' and clkMain'Event then
+				if ctlEppDwr = '1' and regEppAdr = "0111" then
+					regData7 <= busEppIn;
+				end if;
+			end if;
+			
+	end process;
+
+	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+		begin
+			if clkMain = '1' and clkMain'Event then
+				if ctlEppDwr = '1' and regEppAdr = "1010" then
+					--regLed <= busEppIn;
+				end if;
+			end if;
+	end process;
+
+
+
 end Behavioral;
 

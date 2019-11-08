@@ -37,4 +37,20 @@ NET "seg<6>" LOC = "G16"; # Bank = 2, Pin name = IO, Type = I/O, Signal name = R
 
 NET "spk" LOC =  "T14";
 
+NET "pwait" LOC = "N5";
+NET "pwr" LOC = "N7";
+NET "astb" LOC = "N8";
+NET "dstb" LOC = "P7";
+NET "pdb<0>" LOC = "N12";
+NET "pdb<1>" LOC = "P12";
+NET "pdb<2>" LOC = "N11";
+NET "pdb<3>" LOC = "P11";
+NET "pdb<4>" LOC = "N10";
+NET "pdb<5>" LOC = "P10";
+NET "pdb<6>" LOC = "M10";
+NET "pdb<7>" LOC = "R10";
+
+
+
+
 
