@@ -35,11 +35,11 @@ entity ram_addr_counter is
     Port ( clk : in  STD_LOGIC;
            rst : in  STD_LOGIC;
            en : in  STD_LOGIC;
-           addr_out : out  STD_LOGIC_VECTOR (10 downto 0));
+           addr_out : out  STD_LOGIC_VECTOR (9 downto 0));
 end ram_addr_counter;
 
 architecture Behavioral of ram_addr_counter is
-	signal count : std_logic_vector(10 downto 0);
+	signal count : std_logic_vector(9 downto 0);
 begin
 	process(clk, rst)
 	begin

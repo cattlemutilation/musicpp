@@ -46,7 +46,7 @@ begin
 		begin					
 			if(reset = '1') then
 				count <= max_count;
-			elsif (clk'event and clk = '0' and en = '1') then
+			elsif (falling_edge(clk) and en = '1') then
 				count <= count - 1;
 			end if;
 	end process;	

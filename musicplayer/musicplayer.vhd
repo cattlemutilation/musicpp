@@ -93,9 +93,11 @@ architecture Behavioral of musicplayer is
 
 	component ram is
 		 Port ( clk : in  STD_LOGIC;
-				  rst : in  STD_LOGIC;
-				  addr : in  STD_LOGIC_VECTOR (10 downto 0);
-				  data : out  STD_LOGIC_VECTOR (7 downto 0));
+				 -- rst : in  STD_LOGIC;
+				  wr_en : in STD_LOGIC;
+				  addr : in  STD_LOGIC_VECTOR (9 downto 0);
+				  data_in : in STD_LOGIC_VECTOR(7 downto 0);
+				  data_out : out  STD_LOGIC_VECTOR (7 downto 0));
 	end component;
 
 	component comparator is
@@ -148,7 +150,7 @@ architecture Behavioral of musicplayer is
 		port(clk : in std_logic;
 				rst : in std_logic;
 				en : in std_logic;
-				addr_out : out std_logic_vector(3 downto 0));
+				addr_out : out std_logic_vector(9 downto 0));
 	end component;
 
 ------------------------------------------------------------------------
@@ -157,9 +159,6 @@ architecture Behavioral of musicplayer is
 	signal note: std_logic;
 	signal char_in: std_logic_vector(7 downto 0);	
 	signal char_out: std_logic_vector(7 downto 0);
-
-	signal mem_addr: std_logic_vector(10 downto 0);
-	signal next_addr_en : std_logic;
 	
 	signal s_isstart : std_logic;
 	signal s_isend : std_logic;
@@ -185,11 +184,11 @@ architecture Behavioral of musicplayer is
 	signal s_notefin: std_logic;	-- semiq multiple/note len == 0
 	signal s_songfin : std_logic;	-- finish state
 	
-	signal s_ramaddr_rst : std_logic;
-	signal s_ramaddr_en : std_logic;
-	signal s_ramaddr : std_logic_vector(10 downto 0);
+	signal s_ramaddr_rst : std_logic;	
+	signal s_ramaddr_nxt_en : std_logic;
+	signal mem_addr: std_logic_vector(9 downto 0);	-- for ram addr counter
 	
-	signal s_ramwr_en : std_logic;
+	signal s_ramwr_en : std_logic;	-- for ram
 	
 	signal clkdiv: std_logic_vector(24 downto 0);
 ------------------------------------------------------------------------
@@ -237,7 +236,7 @@ architecture Behavioral of musicplayer is
 	constant play		 : std_logic_vector(7 downto 0) := "1110" & "0001";
 	constant finish	 : std_logic_vector(7 downto 0) := "1111" & "0001";
 
-	signal p_state: std_logic_vector(7 downto 0) := stEppReady;
+	signal p_state: std_logic_vector(7 downto 0) := init;
 	signal n_state : std_logic_vector(7 downto 0);
 	
 --type state_type is (init, reset, start, next_char, len, pitch, play, finish);
@@ -251,6 +250,7 @@ architecture Behavioral of musicplayer is
 	signal ctlEppWr : std_logic;
 	signal ctlEppAwr : std_logic;
 	signal ctlEppDwr : std_logic;
+	signal ctl_txt_end : std_logic;
 	signal busEppOut : std_logic_vector(7 downto 0);
 	signal busEppIn : std_logic_vector(7 downto 0);
 	signal busEppData : std_logic_vector(7 downto 0);
@@ -272,7 +272,7 @@ begin
 -- State Transition Logic
 ------------------------------------------------------------------------
 FSM_TRANSITON:
-	process(p_state, rst, s_isstart, s_isend, s_notefin, s_songfin)
+	process(p_state, rst, s_isstart, s_isend, s_notefin, s_songfin, ctl_txt_end, ctlEppAstb, ctlEppWr, ctlEppDstb)
 		begin		
 				case p_state is
 					when init =>
@@ -288,66 +288,62 @@ FSM_TRANSITON:
 					-- Idle state waiting for the beginning of an EPP cycle
 					when stEppReady =>
 						if ctl_txt_end = '1' then
-							stEppNext <= stEppFin;
+							n_state <= start;
 							
 						elsif ctlEppAstb = '0' then
 					-- Address read or write cycle
 							if ctlEppWr = '0' then
-								stEppNext <= stEppAwrA;
+								n_state <= stEppAwrA;
 							else
-								stEppNext <= stEppArdA;
+								n_state <= stEppArdA;
 							end if;
 						elsif ctlEppDstb = '0' then
 					-- Data read or write cycle
 							if ctlEppWr = '0' then
-								stEppNext <= stEppDwrA;
+								n_state <= stEppDwrA;
 							else
-								stEppNext <= stEppDrdA;
+								n_state <= stEppDrdA;
 							end if;
 						else
 							-- Remain in ready state
-							stEppNext <= stEppReady;
+							n_state <= stEppReady;
 						end if;
 					-- Write address register
 					when stEppAwrA =>
-						stEppNext <= stEppAwrB;
+						n_state <= stEppAwrB;
 					when stEppAwrB =>
 						if ctlEppAstb = '0' then
-							stEppNext <= stEppAwrB;
+							n_state <= stEppAwrB;
 						else
-							stEppNext <= stEppReady;
+							n_state <= stEppReady;
 						end if;
 					-- Read address register
 					when stEppArdA =>
-						stEppNext <= stEppArdB;
-						when stEppArdB =>
-							if ctlEppAstb = '0' then
-								stEppNext <= stEppArdB;
-							else
-								stEppNext <= stEppReady;
+						n_state <= stEppArdB;
+					when stEppArdB =>
+						if ctlEppAstb = '0' then
+							n_state <= stEppArdB;
+						else
+							n_state <= stEppReady;
 					end if;
 					-- Write data register
 					when stEppDwrA =>
-						stEppNext <= stEppDwrB;
+						n_state <= stEppDwrB;
 					when stEppDwrB =>
 						if ctlEppDstb = '0' then
-							stEppNext <= stEppDwrB;
+							n_state <= stEppDwrB;
 						else
-							stEppNext <= stEppReady;
+							n_state <= stEppReady;
 						end if;
 					-- Read data register
 					when stEppDrdA =>
-						stEppNext <= stEppDrdB;
+						n_state <= stEppDrdB;
 					when stEppDrdB =>
 						if ctlEppDstb = '0' then
-							stEppNext <= stEppDrdB;
+							n_state <= stEppDrdB;
 					else
-							stEppNext <= stEppReady;
-					end if;
-					-- Some unknown state
-					when others =>
-						stEppNext <= stEppReady;
-				
+							n_state <= stEppReady;
+					end if;				
 
 					when start => 
 						if (s_isstart = '1') then -- 60
@@ -372,10 +368,12 @@ FSM_TRANSITON:
 							n_state <= next_char;
 						else
 							n_state <= play;
-						end if;
-						
+						end if;						
 					when finish =>
 						n_state <= finish;
+						
+					when others => 	--unknown state
+						n_state <= init;
 				end case;
 		end process;
 	
@@ -392,6 +390,20 @@ FSM_TRANSITON:
 -- Control Signals
 ------------------------------------------------------------------------
 EPP_CONTROL:
+
+	-- Decode the address register and select the appropriate data register
+	busEppData <= regData0 when regEppAdr = "0000" else
+						regData1 when regEppAdr = "0001" else
+						regData2 when regEppAdr = "0010" else
+						regData3 when regEppAdr = "0011" else
+						regData4 when regEppAdr = "0100" else
+						regData5 when regEppAdr = "0101" else
+						regData6 when regEppAdr = "0110" else
+						regData7 when regEppAdr = "0111" else
+					--	rgSwt when regEppAdr = "1000" else
+					--	"000" & rgBtn when regEppAdr = "1001" else
+						"00000000";
+
 	ctlEppAstb <= astb;
 	ctlEppDstb <= dstb;
 	ctlEppWr <= pwr;
@@ -405,37 +417,28 @@ EPP_CONTROL:
 	pdb <= busEppOut when ctlEppWr = '1' and ctlEppDir = '1' else "ZZZZZZZZ";
 	-- Select either address or data onto the internal output data bus.
 	busEppOut <= "0000" & regEppAdr when ctlEppAstb = '0' else busEppData;
-	char_in <= busEppIn when ctl_wr_en = '1';
+	char_in <= busEppIn when s_ramwr_en = '1';
 	
+	
+	s_ramwr_en <= '1' when p_state = stEppDwrB else '0';--and ctlEppDstb = '1' else '0';
 	s_ramaddr_rst <= '1' when rst = '1' else
-							'1' when p_state = start else
+							'1' when n_state = start else -- try p_state if resets too early
 							'0';
-	--rgLed <= regLed;
-	-- Decode the address register and select the appropriate data register
-	busEppData <= regData0 when regEppAdr = "0000" else
-						regData1 when regEppAdr = "0001" else
-						regData2 when regEppAdr = "0010" else
-						regData3 when regEppAdr = "0011" else
-						regData4 when regEppAdr = "0100" else
-						regData5 when regEppAdr = "0101" else
-						regData6 when regEppAdr = "0110" else
-						regData7 when regEppAdr = "0111" else
-						rgSwt when regEppAdr = "1000" else
-						"000" & rgBtn when regEppAdr = "1001" else
-						"00000000";
-						
-						
-	read_and_write_data: ram port map(clk, rst, s_ramwr_en, mem_addr, char_in, char_out);	
+	s_ramaddr_nxt_en <= '1' when p_state = stEppDwrB and ctlEppDstb = '1' else
+								'1' when n_state = next_char else
+								'1' when n_state = pitch else
+								'1' when p_state = start else
+								'1' when p_state = next_char else '0';
+	ctl_txt_end <= '1' when char_in = "01000000" else '0';
+	
+	read_and_write_data: ram port map(clk, s_ramwr_en, mem_addr, char_in, char_out);
+	addr_count: 			ram_addr_counter port map(clk, s_ramaddr_rst, s_ramaddr_nxt_en, mem_addr);	
 
 MUSICPLAYER_CONTROL:
 
 	s_tempo_in <= "0111100";
 	s_songfin <= '1' when p_state = finish else '0';
-	
-	next_addr_en <= '1' when p_state = stEppDwrB else
-						 '1' when n_state = next_char else
-						'1' when n_state = pitch else
-						'1' when n_state = start else '0';
+
 	play_en <= '1' when n_state = play else '0';
 	s_freset <= '1' when p_state = pitch or s_freqfin = '1' else '0';
 	s_lreset <= '1' when p_state = len else '0';
@@ -449,8 +452,6 @@ MUSICPLAYER_CONTROL:
 	s_disp_cntr_en <= '0' when p_state = init or p_state = reset else '1';
 	-----------------------------------------------------------------------------	
 	
-	next_data_addr: ram_addr_counter port map(clk, s_ramaddr_rst, next_addr_en, mem_addr);	-- count up to next addr
-
 	get_frequency: freq_decoder port map(s_pitch_in, s_fcount);
 	set_output_freq: freq_counter port map(clk, s_freset, play_en, s_fcount, s_freqfin);	-- count pitch oscillation
 	
@@ -461,13 +462,12 @@ MUSICPLAYER_CONTROL:
 	set_semiq_len : semiq_counter port map(clk, s_sreset, play_en, s_semiq_len, s_semifin);	-- count len of semiq
 	
 	check_start_finish: 			comparator port map(char_out, s_isstart, s_isend);
-	addr_count: 					ram_addr_counter port map(clk, s_ramaddr_rst, s_ramaddr_en, s_ramaddr);
 
 ------------------------------------------------------------------------
 -- Datapath
 ------------------------------------------------------------------------
 FSM_DATAPATH:
-	process(p_state, s_freset)
+	process(p_state, s_freset, char_out)
 	begin
 		case p_state is
 			when start => 
@@ -520,72 +520,72 @@ seg <= s_cathode;--s_cathode;
 -- The ctlEppDwr signal is an output from the state machine that says
 -- we are in a 'write data register' state. This is combined with the
 -- address in the address register to determine which register to write.
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if clkMain = '1' and clkMain'Event then
+			if falling_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0000" then
 					regData0 <= busEppIn;
 				end if;
 			end if;
 	end process;
 
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if clkMain = '1' and clkMain'Event then
+			if falling_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0001" then
 					regData1 <= busEppIn;
 				end if;
 			end if;
 	end process;
 
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if clkMain = '1' and clkMain'Event then
+			if falling_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0010" then
 					regData2 <= busEppIn;
 				end if;
 			end if;
 	end process;
 
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if clkMain = '1' and clkMain'Event then
+			if falling_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0011" then
 					regData3 <= busEppIn;
 				end if;
 			end if;
 	end process;
 
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if clkMain = '1' and clkMain'Event then
+			if falling_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0100" then
 					regData4 <= busEppIn;
 				end if;
 			end if;
 	end process;
 
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if clkMain = '1' and clkMain'Event then
+			if falling_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0101" then
 					regData5 <= busEppIn;
 				end if;
 			end if;
 	end process;
 
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if clkMain = '1' and clkMain'Event then
+			if falling_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0110" then
 					regData6 <= busEppIn;
 				end if;
 			end if;
 	end process;
 
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if clkMain = '1' and clkMain'Event then
+			if falling_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0111" then
 					regData7 <= busEppIn;
 				end if;
@@ -593,16 +593,45 @@ seg <= s_cathode;--s_cathode;
 			
 	end process;
 
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if clkMain = '1' and clkMain'Event then
+			if falling_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "1010" then
 					--regLed <= busEppIn;
 				end if;
 			end if;
 	end process;
-
-
-
 end Behavioral;
 
+--library IEEE;
+--use IEEE.STD_LOGIC_1164.ALL;
+--
+---- Uncomment the following library declaration if using
+---- arithmetic functions with Signed or Unsigned values
+----use IEEE.NUMERIC_STD.ALL;
+--
+---- Uncomment the following library declaration if instantiating
+---- any Xilinx primitives in this code.
+----library UNISIM;
+----use UNISIM.VComponents.all;
+--
+--entity bin_to_7seg is
+--    Port ( digit : in  STD_LOGIC_VECTOR (3 downto 0);
+--           disp_7seg : out  STD_LOGIC_VECTOR (6 downto 0));
+--end bin_to_7seg;
+--
+--architecture Behavioral of bin_to_7seg is
+--
+--begin
+--		disp_7seg <= "1000000" when digit = "0000" else
+--						"1111001" when digit = "0001" else
+--						"0100100" when digit = "0010" else
+--						"0110000" when digit = "0011" else
+--						"0011001" when digit = "0100" else
+--						"0010010" when digit = "0101" else
+--						"0000010" when digit = "0110" else
+--						"1111000" when digit = "0111" else
+--						"0000000" when digit = "1000" else
+--						"0011000" when digit = "1001" else
+--						"1111111";
+--end Behavioral;
