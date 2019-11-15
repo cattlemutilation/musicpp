@@ -37,9 +37,18 @@ end seg_disp_decoder;
 architecture Behavioral of seg_disp_decoder is
 
 begin
-	anode_enable <= "1110" when rotation = "11" else
-						"1101" when rotation = "10" else
-						"1011" when rotation = "01" else
-						"1111";
+process(rotation)
+	begin
+	case(rotation) is
+		when "11" =>
+			anode_enable <= "1110";
+		when "10" =>
+			anode_enable <= "1101";
+		when "01" =>
+			anode_enable <= "1011";
+		when others =>
+			anode_enable <= "1111";
+	end case;
+end process;
 end Behavioral;
 

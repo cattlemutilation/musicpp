@@ -124,6 +124,11 @@
    <wvobject fp_name="group66" type="group">
       <obj_property name="label">lcd</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/playertest/uut/s_tempo_in" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">s_tempo_in[6:0]</obj_property>
+         <obj_property name="ObjectShortName">s_tempo_in[6:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
       <wvobject fp_name="/playertest/uut/get_tempo_digits/tempo" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">tempo[6:0]</obj_property>
          <obj_property name="ObjectShortName">tempo[6:0]</obj_property>

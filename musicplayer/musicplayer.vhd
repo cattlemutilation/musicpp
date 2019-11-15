@@ -160,14 +160,12 @@ architecture Behavioral of musicplayer is
 ------------------------------------------------------------------------
 -- Signals
 ------------------------------------------------------------------------
-	signal note: std_logic;
 	signal char_in: std_logic_vector(7 downto 0);	
 	signal char_out: std_logic_vector(7 downto 0);
 	
 	signal s_isstart : std_logic;
 	signal s_isend : std_logic;
 	signal play_en : std_logic;
-	signal testing : std_logic;
 	
 	signal s_tempo_hundr : std_logic_vector(3 downto 0);
 	signal s_tempo_tens : std_logic_vector(3 downto 0);
@@ -187,7 +185,6 @@ architecture Behavioral of musicplayer is
 	signal s_freqfin : std_logic; -- freq count == 0
 	signal s_semifin : std_logic; -- freq multiple/semiq == 0
 	signal s_notefin: std_logic;	-- semiq multiple/note len == 0
-	signal s_songfin : std_logic;	-- finish state
 	
 	signal s_ramaddr_rst : std_logic;	
 	signal s_ramaddr_nxt_en : std_logic;
@@ -197,7 +194,6 @@ architecture Behavioral of musicplayer is
 	signal s_ramwr_en_bufg : std_logic;
 	
 	signal led_bufg : std_logic_vector(7 downto 0);
-	signal led_bufg2 : std_logic_vector(7 downto 0);
 	
 	signal clkdiv: std_logic_vector(24 downto 0);
 ------------------------------------------------------------------------
@@ -210,6 +206,7 @@ architecture Behavioral of musicplayer is
 	signal s_disp_clk_en : std_logic;
 	signal s_disp_clk_rst : std_logic;
 	signal s_disp_clk_zero : std_logic;
+	signal s_disp_clk_zero_bufg : std_logic;
 	signal s_disp_cntr_en : std_logic;
 	signal s_disp_cntr_rst : std_logic;
 	signal s_disp_cntr_cnt : std_logic_vector(1 downto 0);
@@ -281,7 +278,7 @@ begin
 -- State Transition Logic
 ------------------------------------------------------------------------
 FSM_TRANSITON:
-	process(p_state, rst, s_isstart, s_isend, s_notefin, s_songfin, ctl_txt_end, ctlEppAstb, ctlEppWr, ctlEppDstb)
+	process(p_state, rst, s_isstart, s_isend, s_notefin, ctl_txt_end, ctlEppAstb, ctlEppWr, ctlEppDstb)
 		begin		
 				case p_state is
 					when init =>
@@ -293,7 +290,7 @@ FSM_TRANSITON:
 						else						-- button still being held
 							n_state <= reset;
 						end if;
-						led_bufg(0) <= '0';
+						--led_bufg(0) <= '0';
 				
 					-- Idle state waiting for the beginning of an EPP cycle
 					when stEppReady =>
@@ -385,7 +382,7 @@ FSM_TRANSITON:
 						
 					when others => 	--unknown state
 						n_state <= init;
-						led_bufg(0) <= '1';
+						--led_bufg(0) <= '1';
 
 				end case;
 		end process;
@@ -394,7 +391,7 @@ FSM_TRANSITON:
 		begin
 			if (rst = '1') then		-- push button pushed
 				p_state <= reset;
-			elsif (clk'event and clk = '0') then
+			elsif falling_edge(clk) then
 				p_state <= n_state;
 			end if;
 	end process;
@@ -402,6 +399,34 @@ FSM_TRANSITON:
 ------------------------------------------------------------------------
 -- Control Signals
 ------------------------------------------------------------------------
+MUSICPLAYER_CONTROL:
+
+	s_tempo_in <= "0111100";
+	play_en <= '1' when n_state = play else '0';
+	s_freset_bufg <= '1' when p_state = pitch or s_freqfin = '1' else '0';
+bufg_sfreset : BUFG port map(s_freset_bufg, s_freset);
+	s_lreset <= '1' when p_state = len else '0';
+	s_sreset <= '1' when n_state = len or (s_notefin = '0' and s_semifin = '1') else '0'; --change to tempo later	
+	
+	ctl_txt_end <= '1' when char_in = "01000000" else '0'; -- @	
+	
+	addr_count: 			ram_addr_counter port map(clk, s_ramaddr_rst, s_ramaddr_nxt_en, mem_addr);	
+	read_and_write_data: ram port map(clk, s_ramwr_en, mem_addr, char_in, char_out);
+
+	
+		char_in <= busEppIn when s_ramwr_en = '1';		
+		s_ramwr_en_bufg <= '1' when p_state = stEppDwrB and ctlEppDstb = '1' else '0';
+	bufg_ramwr_en : BUFG port map (s_ramwr_en_bufg, s_ramwr_en);
+		
+		s_ramaddr_rst <= '1' when rst = '1' else
+								'1' when p_state = stEppReady and n_state = start else -- try p_state if resets too early
+								'0';
+	s_ramaddr_nxt_en <= '1' when p_state = stEppDwrB and ctlEppDstb = '1' else
+								'1' when p_state = start and n_state = start else
+								'1' when p_state = next_char else
+								'1' when p_state = len else
+								'1' when p_state = pitch and n_state = play else '0';
+
 EPP_CONTROL:
 
 	-- Decode the address register and select the appropriate data register
@@ -435,43 +460,26 @@ EPP_CONTROL:
 	pdb <= busEppOut when ctlEppWr = '1' and ctlEppDir = '1' else "ZZZZZZZZ";
 	-- Select either address or data onto the internal output data bus.
 	busEppOut <= "0000" & regEppAdr when ctlEppAstb = '0' else busEppData;
-	char_in <= busEppIn when s_ramwr_en = '1';	
-	
-	s_ramwr_en_bufg <= '1' when p_state = stEppDwrB and ctlEppDstb = '1' else '0';
-bufg_ramwr_en : BUFG port map (s_ramwr_en_bufg, s_ramwr_en);
-	
-	s_ramaddr_rst <= '1' when rst = '1' else
-							'1' when p_state = stEppReady and n_state = start else -- try p_state if resets too early
-							'0';
-	s_ramaddr_nxt_en <= '1' when p_state = stEppDwrB and ctlEppDstb = '1' else
-								'1' when p_state = start and n_state = start else
-								'1' when p_state = next_char else
-								'1' when p_state = len else
-								'1' when p_state = pitch and n_state = play else '0';
-								
-	ctl_txt_end <= '1' when char_in = "01000000" else '0'; -- @
-	
-	
-	addr_count: 			ram_addr_counter port map(clk, s_ramaddr_rst, s_ramaddr_nxt_en, mem_addr);	
-	read_and_write_data: ram port map(clk, s_ramwr_en, mem_addr, char_in, char_out);
 
-MUSICPLAYER_CONTROL:
+	------------------------------------------------------------------------
+	-- LCD display
+	------------------------------------------------------------------------
+	get_tempo_digits: 			tempo_dig_breakdown port map(s_tempo_in, s_tempo_hundr, s_tempo_tens, s_tempo_ones);
+	dig_to_7seg : 					bin_to_7seg port map(s_curr_digit, s_cathode);
+	disp_4ms_count: 				seg_disp_clk_4ms port map(clk, s_disp_clk_rst, s_disp_clk_en, s_disp_clk_zero_bufg);
+	disp_anode_rotation: 		seg_disp_counter port map(s_disp_clk_zero, s_disp_cntr_rst, s_disp_cntr_en, s_disp_cntr_cnt, s_disp_cntr_zero);
+	decode_to_anode : 			seg_disp_decoder port map(s_disp_cntr_cnt, s_anode);	-- produces anode mask
+	select_digit_to_display : 	mux_3to1_4b port map(s_disp_cntr_cnt, s_tempo_hundr, s_tempo_tens, s_tempo_ones, s_curr_digit);
+	disp <= s_anode;
+	seg <= s_cathode;
 
-	s_tempo_in <= "0111100";
-	s_songfin <= '1' when p_state = finish else '0';
-
-	play_en <= '1' when n_state = play else '0';
-	s_freset_bufg <= '1' when p_state = pitch or s_freqfin = '1' else '0';
-bufg_sfreset : BUFG port map(s_freset_bufg, s_freset);
-	s_lreset <= '1' when p_state = len else '0';
-	s_sreset <= '1' when n_state = len or (s_notefin = '0' and s_semifin = '1') else '0'; --change to tempo later
-	
-	-------------------led display control signals-------------------------------
 	s_disp_clk_rst <= '1' when p_state = init or p_state = reset else s_disp_clk_zero;
+	bufg_disp_clk_zero: bufg port map (s_disp_clk_zero_bufg, s_disp_clk_zero);
 	s_disp_cntr_rst <= '1' when p_state = init or p_state = reset else s_disp_cntr_zero;
 	
 	s_disp_clk_en <= '0' when p_state = init or p_state = reset else '1';
 	s_disp_cntr_en <= '0' when p_state = init or p_state = reset else '1';
+	
 	-----------------------------------------------------------------------------	
 	
 	get_frequency: freq_decoder port map(s_pitch_in, s_fcount);
@@ -488,20 +496,20 @@ bufg_sfreset : BUFG port map(s_freset_bufg, s_freset);
 ------------------------------------------------------------------------
 -- Datapath
 ------------------------------------------------------------------------
+
+
 FSM_DATAPATH:
 	process(p_state, s_freset, char_out)
 	begin
 		case p_state is
 			when start => 
-				s_songfin <= '0';
 				spk <= '0';
-				note <= '0';
 			when next_char =>
 				spk <= '0';
-				note <= '0';
+				
 			when len =>
 				spk <= '0';
-				note <= '0';
+				
 				s_len_in <= char_out;
 			when pitch =>		
 				spk <= '0';
@@ -512,36 +520,33 @@ FSM_DATAPATH:
 				end if;
 			when finish =>
 				spk <= '0';
-				note <= '0';
-				s_songfin <= '1';
+				
 			when others =>
 				spk <= '0';
-				note <= '0';
+				
 		end case;	
 	end process;
 
-	led_bufg(4 downto 1) <= swt(4 downto 1);	
-	
-	led_bufg(7) <= '1' when p_state = StEppReady else '0';
-	
-	led_bufg(6) <= '1' when p_state = start else '0';
-	led_bufg(5) <= '1' when p_state = stEppDrdB else '0';
-	
+--	led_bufg(3 downto 1) <= swt(3 downto 1);	
+--	
+--	led_bufg(7) <= '1' when p_state = StEppReady else '0';
+--	
+--	led_bufg(6) <= '1' when p_state = start else '0';
+--	led_bufg(5) <= '1' when p_state = stEppDrdB else '0';
+--	led_bufg(4) <= '1' when p_state = play else '0';
+--	
 --bufg_led : BUFG port map(led_bufg2, led_bufg);
-	led <= led_bufg;
+--bufg7 : BUFG port map(led_bufg(7), led(7));
+--bufg6 : BUFG port map(led_bufg(6), led(6));
+--bufg5 : BUFG port map(led_bufg(5), led(5));
+--bufg4 : BUFG port map(led_bufg(4), led(4));
+--bufg3 : BUFG port map(led_bufg(3), led(3));
+--bufg2 : BUFG port map(led_bufg(2), led(2));
+--bufg1 : BUFG port map(led_bufg(1), led(1));
+--bufg0 : BUFG port map(led_bufg(0), led(0));
+--	led <= led_bufg;
 	
 
-------------------------------------------------------------------------
--- LCD display
-------------------------------------------------------------------------
-get_tempo_digits: 			tempo_dig_breakdown port map(s_tempo_in, s_tempo_hundr, s_tempo_tens, s_tempo_ones);
-dig_to_7seg : 					bin_to_7seg port map(s_curr_digit, s_cathode);
-disp_4ms_count: 				seg_disp_clk_4ms port map(clk, s_disp_clk_rst, s_disp_clk_en, s_disp_clk_zero);
-disp_anode_rotation: 		seg_disp_counter port map(s_disp_clk_zero, s_disp_cntr_rst, s_disp_cntr_en, s_disp_cntr_cnt, s_disp_cntr_zero);
-decode_to_anode : 			seg_disp_decoder port map(s_disp_cntr_cnt, s_anode);	-- produces anode mask
-select_digit_to_display : 	mux_3to1_4b port map(s_disp_cntr_cnt, s_tempo_hundr, s_tempo_tens, s_tempo_ones, s_curr_digit);
-disp <= s_anode;
-seg <= s_cathode;
 
 ------------------------------------------------------------------------
 -- EPP Data registers

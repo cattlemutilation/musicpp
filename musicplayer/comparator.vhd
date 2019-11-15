@@ -40,7 +40,7 @@ end comparator;
 architecture Behavioral of comparator is
 
 begin
-	start <= '1' when char = "00111100" else '0';
+	start <= '0' when char = "00000000" else '1';
 	finish <= '1' when char = "01000000" else '0';
 
 
