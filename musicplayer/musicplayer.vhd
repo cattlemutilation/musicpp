@@ -28,8 +28,8 @@ use ieee.std_logic_unsigned.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+library UNISIM;
+use UNISIM.VComponents.all;
 
 entity musicplayer is
     Port ( clk : in  STD_LOGIC;
@@ -153,6 +153,10 @@ architecture Behavioral of musicplayer is
 				addr_out : out std_logic_vector(9 downto 0));
 	end component;
 
+	component BUFG
+		port (I : in STD_LOGIC;
+				O : out STD_LOGIC);
+	end component;
 ------------------------------------------------------------------------
 -- Signals
 ------------------------------------------------------------------------
@@ -177,6 +181,7 @@ architecture Behavioral of musicplayer is
 	signal s_note_len : std_logic_vector(4 downto 0); -- decoded semiquaver multiples
 	signal s_semiq_len : std_logic_Vector(27 downto 0); -- decoded tempo, semiq length
 	signal s_freset : std_logic;	-- reset freq cnt	
+	signal s_freset_bufg : std_logic;
 	signal s_lreset : std_logic;	-- reset note length
 	signal s_sreset : std_logic;
 	signal s_freqfin : std_logic; -- freq count == 0
@@ -189,6 +194,10 @@ architecture Behavioral of musicplayer is
 	signal mem_addr: std_logic_vector(9 downto 0);	-- for ram addr counter
 	
 	signal s_ramwr_en : std_logic;	-- for ram
+	signal s_ramwr_en_bufg : std_logic;
+	
+	signal led_bufg : std_logic_vector(7 downto 0);
+	signal led_bufg2 : std_logic_vector(7 downto 0);
 	
 	signal clkdiv: std_logic_vector(24 downto 0);
 ------------------------------------------------------------------------
@@ -237,7 +246,7 @@ architecture Behavioral of musicplayer is
 	constant finish	 : std_logic_vector(7 downto 0) := "1111" & "0001";
 
 	signal p_state: std_logic_vector(7 downto 0) := init;
-	signal n_state : std_logic_vector(7 downto 0);
+	signal n_state : std_logic_vector(7 downto 0) := init;
 	
 --type state_type is (init, reset, start, next_char, len, pitch, play, finish);
 --signal p_state, n_state : state_type;
@@ -284,6 +293,7 @@ FSM_TRANSITON:
 						else						-- button still being held
 							n_state <= reset;
 						end if;
+						led_bufg(0) <= '0';
 				
 					-- Idle state waiting for the beginning of an EPP cycle
 					when stEppReady =>
@@ -355,14 +365,15 @@ FSM_TRANSITON:
 						if s_isend = '1' then -- @
 							n_state <= finish;
 						else
-							n_state <= len;
+							n_state <= pitch;
 						end if;
-					when len =>
-						n_state <= pitch;
 						
 					when pitch =>
-						n_state <= play;
-					
+						n_state <= len;
+						
+					when len =>
+						n_state <= play;				
+
 					when play =>
 						if (s_notefin = '1') then
 							n_state <= next_char;
@@ -374,6 +385,8 @@ FSM_TRANSITON:
 						
 					when others => 	--unknown state
 						n_state <= init;
+						led_bufg(0) <= '1';
+
 				end case;
 		end process;
 	
@@ -384,7 +397,7 @@ FSM_TRANSITON:
 			elsif (clk'event and clk = '0') then
 				p_state <= n_state;
 			end if;
-		end process;
+	end process;
 	
 ------------------------------------------------------------------------
 -- Control Signals
@@ -403,36 +416,44 @@ EPP_CONTROL:
 					--	rgSwt when regEppAdr = "1000" else
 					--	"000" & rgBtn when regEppAdr = "1001" else
 						"00000000";
+	-- Map control signals from the current state
+	ctlEppWait <= p_state(0);
+	ctlEppDir <= p_state(1);
+	ctlEppAwr <= p_state(2);
+	ctlEppDwr <= p_state(3);
 
 	ctlEppAstb <= astb;
 	ctlEppDstb <= dstb;
 	ctlEppWr <= pwr;
 	pwait <= ctlEppWait; -- drive WAIT from state machine output
-								-- Data bus direction control. The internal input data bus always
-								-- gets the port data bus. The port data bus drives the internal
-								-- output data bus onto the pins when the interface says we are doing
-								-- a read cycle and we are in one of the read cycles states in the
-								-- state machine.
+	-- Data bus direction control. The internal input data bus always
+	-- gets the port data bus. The port data bus drives the internal
+	-- output data bus onto the pins when the interface says we are doing
+	-- a read cycle and we are in one of the read cycles states in the
+	-- state machine.
 	busEppIn <= pdb;
 	pdb <= busEppOut when ctlEppWr = '1' and ctlEppDir = '1' else "ZZZZZZZZ";
 	-- Select either address or data onto the internal output data bus.
 	busEppOut <= "0000" & regEppAdr when ctlEppAstb = '0' else busEppData;
-	char_in <= busEppIn when s_ramwr_en = '1';
+	char_in <= busEppIn when s_ramwr_en = '1';	
 	
+	s_ramwr_en_bufg <= '1' when p_state = stEppDwrB and ctlEppDstb = '1' else '0';
+bufg_ramwr_en : BUFG port map (s_ramwr_en_bufg, s_ramwr_en);
 	
-	s_ramwr_en <= '1' when p_state = stEppDwrB else '0';--and ctlEppDstb = '1' else '0';
 	s_ramaddr_rst <= '1' when rst = '1' else
-							'1' when n_state = start else -- try p_state if resets too early
+							'1' when p_state = stEppReady and n_state = start else -- try p_state if resets too early
 							'0';
 	s_ramaddr_nxt_en <= '1' when p_state = stEppDwrB and ctlEppDstb = '1' else
-								'1' when n_state = next_char else
-								'1' when n_state = pitch else
-								'1' when p_state = start else
-								'1' when p_state = next_char else '0';
-	ctl_txt_end <= '1' when char_in = "01000000" else '0';
+								'1' when p_state = start and n_state = start else
+								'1' when p_state = next_char else
+								'1' when p_state = len else
+								'1' when p_state = pitch and n_state = play else '0';
+								
+	ctl_txt_end <= '1' when char_in = "01000000" else '0'; -- @
 	
-	read_and_write_data: ram port map(clk, s_ramwr_en, mem_addr, char_in, char_out);
+	
 	addr_count: 			ram_addr_counter port map(clk, s_ramaddr_rst, s_ramaddr_nxt_en, mem_addr);	
+	read_and_write_data: ram port map(clk, s_ramwr_en, mem_addr, char_in, char_out);
 
 MUSICPLAYER_CONTROL:
 
@@ -440,7 +461,8 @@ MUSICPLAYER_CONTROL:
 	s_songfin <= '1' when p_state = finish else '0';
 
 	play_en <= '1' when n_state = play else '0';
-	s_freset <= '1' when p_state = pitch or s_freqfin = '1' else '0';
+	s_freset_bufg <= '1' when p_state = pitch or s_freqfin = '1' else '0';
+bufg_sfreset : BUFG port map(s_freset_bufg, s_freset);
 	s_lreset <= '1' when p_state = len else '0';
 	s_sreset <= '1' when n_state = len or (s_notefin = '0' and s_semifin = '1') else '0'; --change to tempo later
 	
@@ -477,6 +499,9 @@ FSM_DATAPATH:
 			when next_char =>
 				spk <= '0';
 				note <= '0';
+			when len =>
+				spk <= '0';
+				note <= '0';
 				s_len_in <= char_out;
 			when pitch =>		
 				spk <= '0';
@@ -495,7 +520,15 @@ FSM_DATAPATH:
 		end case;	
 	end process;
 
-	led <= swt;	
+	led_bufg(4 downto 1) <= swt(4 downto 1);	
+	
+	led_bufg(7) <= '1' when p_state = StEppReady else '0';
+	
+	led_bufg(6) <= '1' when p_state = start else '0';
+	led_bufg(5) <= '1' when p_state = stEppDrdB else '0';
+	
+--bufg_led : BUFG port map(led_bufg2, led_bufg);
+	led <= led_bufg;
 	
 
 ------------------------------------------------------------------------
@@ -508,7 +541,7 @@ disp_anode_rotation: 		seg_disp_counter port map(s_disp_clk_zero, s_disp_cntr_rs
 decode_to_anode : 			seg_disp_decoder port map(s_disp_cntr_cnt, s_anode);	-- produces anode mask
 select_digit_to_display : 	mux_3to1_4b port map(s_disp_cntr_cnt, s_tempo_hundr, s_tempo_tens, s_tempo_ones, s_curr_digit);
 disp <= s_anode;
-seg <= s_cathode;--s_cathode;
+seg <= s_cathode;
 
 ------------------------------------------------------------------------
 -- EPP Data registers
@@ -603,35 +636,3 @@ seg <= s_cathode;--s_cathode;
 	end process;
 end Behavioral;
 
---library IEEE;
---use IEEE.STD_LOGIC_1164.ALL;
---
----- Uncomment the following library declaration if using
----- arithmetic functions with Signed or Unsigned values
-----use IEEE.NUMERIC_STD.ALL;
---
----- Uncomment the following library declaration if instantiating
----- any Xilinx primitives in this code.
-----library UNISIM;
-----use UNISIM.VComponents.all;
---
---entity bin_to_7seg is
---    Port ( digit : in  STD_LOGIC_VECTOR (3 downto 0);
---           disp_7seg : out  STD_LOGIC_VECTOR (6 downto 0));
---end bin_to_7seg;
---
---architecture Behavioral of bin_to_7seg is
---
---begin
---		disp_7seg <= "1000000" when digit = "0000" else
---						"1111001" when digit = "0001" else
---						"0100100" when digit = "0010" else
---						"0110000" when digit = "0011" else
---						"0011001" when digit = "0100" else
---						"0010010" when digit = "0101" else
---						"0000010" when digit = "0110" else
---						"1111000" when digit = "0111" else
---						"0000000" when digit = "1000" else
---						"0011000" when digit = "1001" else
---						"1111111";
---end Behavioral;

@@ -45,7 +45,7 @@ begin
 	begin
 	if rst = '1' then
 			count <= (others => '0');		
-	elsif rising_edge(clk) then
+	elsif falling_edge(clk) then
 		if	en = '1' then
 				count <= count + 1;
 		end if;	

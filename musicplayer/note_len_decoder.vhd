@@ -37,12 +37,33 @@ end note_len_decoder;
 architecture Behavioral of note_len_decoder is
 
 begin
-	semi_multiple <= "00001" when note = "00000001" else	-- semiquver
-						  "00010" when note = "00000010" else	-- qver
-						  "00100" when note = "00000011" else	-- crotchet
-						  "01000" when note = "00000100" else	-- minim
-						  "01100" when note = "00000101" else	-- dotted minim
-						  "10000" when note = "00000110";		-- sembreve
+	process(note)
+	begin
+		case(note) is 
+			when "00000001" =>
+				semi_multiple <= "00001";
+			when "00000010" =>
+				semi_multiple <= "00010";
+			when "00000011" =>  
+				semi_multiple <= "00100";
+			when "00000100" =>
+				semi_multiple <= "01000";
+			when "00000101" =>
+				semi_multiple <= "01100";
+			when "00000110" =>
+				semi_multiple <= "10000";
+			when others =>
+				semi_multiple <= "00000";
+			
+			
+		end case;
+	end process;
+--	semi_multiple <= "00001" when note = "00000001" else	-- semiquver
+--						  "00010" when note = "00000010" else	-- qver
+--						  "00100" when note = "00000011" else	-- crotchet
+--						  "01000" when note = "00000100" else	-- minim
+--						  "01100" when note = "00000101" else	-- dotted minim
+--						  "10000" when note = "00000110";		-- sembreve
 
 end Behavioral;
 
