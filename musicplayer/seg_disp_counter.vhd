@@ -48,8 +48,10 @@ begin
 	begin
 		if(rst = '1') then
 			disp_rotate_cnt <= "11";
-		elsif (falling_edge(clk) and en = '1') then
-			disp_rotate_cnt <= disp_rotate_cnt - 1;
+		elsif (falling_edge(clk)) then
+			if en = '1' then
+				disp_rotate_cnt <= disp_rotate_cnt - 1;
+			end if;
 		end if;
 	end process;
 	cnt <= disp_rotate_cnt;

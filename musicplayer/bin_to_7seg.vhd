@@ -37,16 +37,32 @@ end bin_to_7seg;
 architecture Behavioral of bin_to_7seg is
 
 begin
-		disp_7seg <= "1000000" when digit = "0000" else
-						"1111001" when digit = "0001" else
-						"0100100" when digit = "0010" else
-						"0110000" when digit = "0011" else
-						"0011001" when digit = "0100" else
-						"0010010" when digit = "0101" else
-						"0000010" when digit = "0110" else
-						"1111000" when digit = "0111" else
-						"0000000" when digit = "1000" else
-						"0011000" when digit = "1001" else
-						"1111111";
+process(digit)
+	begin
+		case(digit) is
+			when "0000" =>
+				disp_7seg <= "1000000";
+			when "0001"=>
+				disp_7seg <= "1111001";
+			when "0010" =>
+				disp_7seg <= "0100100";
+			when "0011"=>
+				disp_7seg <= "0110000";
+			when "0100"=>
+				disp_7seg <= "0011001";
+			when "0101"=>
+				disp_7seg <= "0010010";
+			when "0110"=>
+				disp_7seg <= "0000010";
+			when "0111"=>
+				disp_7seg <= "1111000";
+			when "1000"=>
+				disp_7seg <= "0000000";
+			when "1001"=>
+				disp_7seg <= "0011000";
+			when others =>
+				disp_7seg <= "1111111";	
+		end case;
+	end process;
 end Behavioral;
 

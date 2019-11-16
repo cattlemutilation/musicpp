@@ -46,8 +46,10 @@ begin
 		begin					
 			if(reset = '1') then
 				count <= max_count;
-			elsif (falling_edge(clk) and en = '1') then
-				count <= count - 1;
+			elsif (falling_edge(clk)) then
+				if en = '1' then
+					count <= count - 1;
+				end if;
 			end if;
 	end process;	
 	zero <= '1' when count = "0000000000000000000" else '0';

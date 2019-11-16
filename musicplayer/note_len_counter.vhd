@@ -48,8 +48,10 @@ begin
 		begin
 			if (reset = '1') then
 				count <= semi_multiples;
-			elsif (clk'event and clk = '0' and en = '1') then
-				count <= count - 1;
+			elsif (clk'event and clk = '0') then
+				if en = '1' then
+					count <= count - 1;
+				end if;
 			end if;
 		end process;
 		zero <= '1' when count = 0 else '0';

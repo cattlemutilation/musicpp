@@ -401,6 +401,17 @@ FSM_TRANSITON:
 ------------------------------------------------------------------------
 MUSICPLAYER_CONTROL:
 
+--	process(clk, p_state, s_isstart)
+--	begin
+--		if falling_edge(clk) then
+--			if p_state = init or p_state = reset then
+--				s_tempo_in <= "0000000";
+--			elsif p_state = start and s_isstart = '1' then
+--				s_tempo_in <= char_out(6 downto 0);
+--			end if;
+--		end if;
+--	end process;
+	--s_tempo_in <= char_out(6 downto 0) when p_state = start and s_isstart = '1';--"0111100";
 	s_tempo_in <= "0111100";
 	play_en <= '1' when n_state = play else '0';
 	s_freset_bufg <= '1' when p_state = pitch or s_freqfin = '1' else '0';
