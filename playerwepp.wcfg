@@ -263,6 +263,10 @@
          <obj_property name="ElementShortName">[4]</obj_property>
          <obj_property name="ObjectShortName">ram[4]</obj_property>
       </wvobject>
+      <wvobject fp_name="/playertest/uut/read_and_write_data/ram[5]" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">[5]</obj_property>
+         <obj_property name="ObjectShortName">ram[5]</obj_property>
+      </wvobject>
       <wvobject fp_name="/playertest/uut/s_ramaddr_rst" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">s_ramaddr_rst</obj_property>
          <obj_property name="ObjectShortName">s_ramaddr_rst</obj_property>

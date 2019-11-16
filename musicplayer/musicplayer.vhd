@@ -359,14 +359,14 @@ FSM_TRANSITON:
 							n_state <= start;
 						end if;
 					when next_char =>
+							n_state <= pitch;
+						
+					when pitch =>					
 						if s_isend = '1' then -- @
 							n_state <= finish;
 						else
-							n_state <= pitch;
+							n_state <= len;
 						end if;
-						
-					when pitch =>
-						n_state <= len;
 						
 					when len =>
 						n_state <= play;				
@@ -411,8 +411,8 @@ MUSICPLAYER_CONTROL:
 --			end if;
 --		end if;
 --	end process;
-	s_tempo_in <= char_out(6 downto 0) when p_state = start and s_isstart = '1';--"0111100";
-	--s_tempo_in <= "0111100";
+	--s_tempo_in <= char_out(6 downto 0) when p_state = start and s_isstart = '1';--"0111100";
+	s_tempo_in <= "0111100";
 	play_en <= '1' when n_state = play else '0';
 	s_freset_bufg <= '1' when p_state = pitch or s_freqfin = '1' else '0';
 bufg_sfreset : BUFG port map(s_freset_bufg, s_freset);
