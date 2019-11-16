@@ -128,7 +128,7 @@ BEGIN
 		pwr <= '0';
 		wait for clk_period; -- dwrA
 		wait for clk_period; -- dwrB
-		pdb <= "00000000";
+		pdb <= "01111000";
 		dstb <=  '1';
 		pwr <= '1';
 		wait for clk_period; -- ready
@@ -145,7 +145,7 @@ BEGIN
 		wait for clk_period;
 		dstb <=  '1';
 		pwr <= '1';		
-		pdb <= "01111000";
+		pdb <= "01100001";
 		wait for clk_period;
 		dstb <= '0';
 		pwr <= '0';
@@ -153,7 +153,7 @@ BEGIN
 		wait for clk_period; -- dwrB
 		dstb <=  '1';
 		pwr <= '1';
-		pdb <= "01100001";
+		pdb <= "00000001";
 		wait for clk_period; -- ready
 		dstb <= '0';
 		pwr <= '0';		
@@ -161,14 +161,6 @@ BEGIN
 		wait for clk_period; -- dwrB
 		dstb <=  '1';
 		pwr <= '1';	
-		pdb <= "00000001";
-		wait for clk_period;
-		dstb <= '0';
-		pwr <= '0';
-		wait for clk_period;
-		wait for clk_period;
-		dstb <=  '1';
-		pwr <= '1';
 		pdb <= "01110000";
 		wait for clk_period;
 		dstb <= '0';
@@ -176,7 +168,7 @@ BEGIN
 		wait for clk_period;
 		wait for clk_period;
 		dstb <=  '1';
-		pwr <= '1';	
+		pwr <= '1';
 		pdb <= "00000001";
 		wait for clk_period;
 		dstb <= '0';
@@ -184,8 +176,16 @@ BEGIN
 		wait for clk_period;
 		wait for clk_period;
 		dstb <=  '1';
-		pwr <= '1';		
+		pwr <= '1';	
 		pdb <= "01000000";
+		wait for clk_period;
+		dstb <= '0';
+		pwr <= '0';
+		wait for clk_period;
+		wait for clk_period;
+		dstb <=  '1';
+		pwr <= '1';		
+		pdb <= "00000000";
 		wait for clk_period;
 		
 		wait for clk_period*100;

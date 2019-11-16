@@ -3,7 +3,7 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="C:/Users/jorilla/uni/musicpp/musicplayer/playertest_isim_beh.wdb" id="1" type="auto">
+      <db_ref path="C:/Users/jorilla/musicpp/musicplayer/playertest_isim_beh.wdb" id="1" type="auto">
          <top_modules>
             <top_module name="playertest" />
             <top_module name="std_logic_1164" />
@@ -13,7 +13,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="14" />
+   <WVObjectSize size="16" />
    <wvobject fp_name="/playertest/rst" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -283,10 +283,19 @@
    <wvobject fp_name="/playertest/uut/char_out" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">char_out[7:0]</obj_property>
       <obj_property name="ObjectShortName">char_out[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/playertest/uut/mem_addr" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">mem_addr[9:0]</obj_property>
       <obj_property name="ObjectShortName">mem_addr[9:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_ramaddr_rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">s_ramaddr_rst</obj_property>
+      <obj_property name="ObjectShortName">s_ramaddr_rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_ramaddr_nxt_en" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">s_ramaddr_nxt_en</obj_property>
+      <obj_property name="ObjectShortName">s_ramaddr_nxt_en</obj_property>
    </wvobject>
 </wave_config>

@@ -411,13 +411,26 @@ MUSICPLAYER_CONTROL:
 --			end if;
 --		end if;
 --	end process;
-	--s_tempo_in <= char_out(6 downto 0) when p_state = start and s_isstart = '1';--"0111100";
-	s_tempo_in <= "0111100";
+	s_tempo_in <= char_out(6 downto 0) when p_state = start and s_isstart = '1';--"0111100";
+	--s_tempo_in <= "0111100";
 	play_en <= '1' when n_state = play else '0';
 	s_freset_bufg <= '1' when p_state = pitch or s_freqfin = '1' else '0';
 bufg_sfreset : BUFG port map(s_freset_bufg, s_freset);
 	s_lreset <= '1' when p_state = len else '0';
 	s_sreset <= '1' when n_state = len or (s_notefin = '0' and s_semifin = '1') else '0'; --change to tempo later	
+	
+	get_frequency: freq_decoder port map(s_pitch_in, s_fcount);
+	set_output_freq: freq_counter port map(clk, s_freset, play_en, s_fcount, s_freqfin);	-- count pitch oscillation
+	
+	get_note_len: note_len_decoder port map(s_len_in, s_note_len);
+	set_semiq_multiple: note_len_counter port map(clk, s_lreset, s_semifin, s_note_len, s_notefin);	-- count down per semiq in note
+	
+	get_tempo: tempo_decoder port map(s_tempo_in, s_semiq_len);
+	set_semiq_len : semiq_counter port map(clk, s_sreset, play_en, s_semiq_len, s_semifin);	-- count len of semiq
+	
+	check_start_finish: 			comparator port map(char_out, s_isstart, s_isend);
+
+	--------------------------------------------------------------------------------
 	
 	ctl_txt_end <= '1' when char_in = "01000000" else '0'; -- @	
 	
@@ -433,10 +446,9 @@ bufg_sfreset : BUFG port map(s_freset_bufg, s_freset);
 								'1' when p_state = stEppReady and n_state = start else -- try p_state if resets too early
 								'0';
 	s_ramaddr_nxt_en <= '1' when p_state = stEppDwrB and ctlEppDstb = '1' else
-								'1' when p_state = start and n_state = start else
-								'1' when p_state = next_char else
-								'1' when p_state = len else
-								'1' when p_state = pitch and n_state = play else '0';
+								'1' when p_state = start else
+								'1' when n_state = next_char else 
+								'1' when n_state = pitch else '0';
 
 EPP_CONTROL:
 
@@ -492,17 +504,6 @@ EPP_CONTROL:
 	s_disp_cntr_en <= '0' when p_state = init or p_state = reset else '1';
 	
 	-----------------------------------------------------------------------------	
-	
-	get_frequency: freq_decoder port map(s_pitch_in, s_fcount);
-	set_output_freq: freq_counter port map(clk, s_freset, play_en, s_fcount, s_freqfin);	-- count pitch oscillation
-	
-	get_note_len: note_len_decoder port map(s_len_in, s_note_len);
-	set_semiq_multiple: note_len_counter port map(clk, s_lreset, s_semifin, s_note_len, s_notefin);	-- count down per semiq in note
-	
-	get_tempo: tempo_decoder port map(s_tempo_in, s_semiq_len);
-	set_semiq_len : semiq_counter port map(clk, s_sreset, play_en, s_semiq_len, s_semifin);	-- count len of semiq
-	
-	check_start_finish: 			comparator port map(char_out, s_isstart, s_isend);
 
 ------------------------------------------------------------------------
 -- Datapath
@@ -537,27 +538,6 @@ FSM_DATAPATH:
 				
 		end case;	
 	end process;
-
---	led_bufg(3 downto 1) <= swt(3 downto 1);	
---	
---	led_bufg(7) <= '1' when p_state = StEppReady else '0';
---	
---	led_bufg(6) <= '1' when p_state = start else '0';
---	led_bufg(5) <= '1' when p_state = stEppDrdB else '0';
---	led_bufg(4) <= '1' when p_state = play else '0';
---	
---bufg_led : BUFG port map(led_bufg2, led_bufg);
---bufg7 : BUFG port map(led_bufg(7), led(7));
---bufg6 : BUFG port map(led_bufg(6), led(6));
---bufg5 : BUFG port map(led_bufg(5), led(5));
---bufg4 : BUFG port map(led_bufg(4), led(4));
---bufg3 : BUFG port map(led_bufg(3), led(3));
---bufg2 : BUFG port map(led_bufg(2), led(2));
---bufg1 : BUFG port map(led_bufg(1), led(1));
---bufg0 : BUFG port map(led_bufg(0), led(0));
---	led <= led_bufg;
-	
-
 
 ------------------------------------------------------------------------
 -- EPP Data registers
