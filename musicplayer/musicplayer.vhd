@@ -487,7 +487,7 @@ EPP_CONTROL:
 ------------------------------------------------------------------------
 
 FSM_OUTPUTS:
-	process(p_state, s_isstart, s_isend, char_out, s_freqfin, ctlEppDstB, busEppIn, ctl_txt_end, s_notefin, s_semifin, s_disp_clk_zero, s_disp_cntr_zero)
+	process(p_state, n_state, s_isstart, s_isend, char_out, s_freqfin, ctlEppDstB, busEppIn, ctl_txt_end, s_notefin, s_semifin, s_disp_clk_zero, s_disp_cntr_zero)
 	begin
 	
 		s_disp_clk_en <= '1';
@@ -550,6 +550,9 @@ FSM_OUTPUTS:
 				end if;
 				if (s_notefin = '0' and s_semifin = '1') then
 					s_sreset <= '1';
+				end if;
+				if (n_state = next_char) then
+					s_ramaddr_nxt_en <= '1';
 				end if;
 			when finish =>			
 				s_disp_cntr_rst <= s_disp_cntr_zero;
