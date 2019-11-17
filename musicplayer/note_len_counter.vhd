@@ -48,7 +48,7 @@ begin
 		begin
 			if (reset = '1') then
 				count <= semi_multiples;
-			elsif (clk'event and clk = '0') then
+			elsif (falling_edge(clk)) then
 				if en = '1' then
 					count <= count - 1;
 				end if;

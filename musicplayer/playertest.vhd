@@ -112,7 +112,7 @@ BEGIN
    stim_proc: process
    begin		
       -- hold reset state for 100 ns.
-      wait for clk_period/2;	-- reset
+      wait for clk_period;	-- reset
 		rst <= '1';
 		astb <= '1';
 		dstb <= '1';
@@ -122,7 +122,8 @@ BEGIN
 		astb <= '0';
 		pwr <= '0';
 		wait for clk_period; -- awrA
-		wait for clk_period; -- awrB		
+		wait for clk_period; -- awrB	
+		pdb <= "00000000";		
 		astb <= '1';
 		pwr <= '1';
 		wait for clk_period; -- ready

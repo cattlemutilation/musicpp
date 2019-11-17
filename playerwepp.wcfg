@@ -22,7 +22,7 @@
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
    </wvobject>
-   <wvobject fp_name="/playertest/spk" type="logic" db_ref_id="1">
+   <wvobject fp_name="/playertest/uut/spk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">spk</obj_property>
       <obj_property name="ObjectShortName">spk</obj_property>
    </wvobject>
@@ -41,6 +41,10 @@
          <obj_property name="ElementShortName">pwr</obj_property>
          <obj_property name="ObjectShortName">pwr</obj_property>
       </wvobject>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/ctleppdstb" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ctleppdstb</obj_property>
+      <obj_property name="ObjectShortName">ctleppdstb</obj_property>
    </wvobject>
    <wvobject fp_name="/playertest/uut/p_state" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">p_state[7:0]</obj_property>
@@ -162,10 +166,6 @@
          <obj_property name="ObjectShortName">count[18:0]</obj_property>
          <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
-      <wvobject fp_name="/playertest/uut/disp_4ms_count/rst" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">rst</obj_property>
-         <obj_property name="ObjectShortName">rst</obj_property>
-      </wvobject>
       <wvobject fp_name="/playertest/uut/disp_anode_rotation/cnt" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">cnt[1:0]</obj_property>
          <obj_property name="ObjectShortName">cnt[1:0]</obj_property>
@@ -178,10 +178,6 @@
          <obj_property name="ElementShortName">q[3:0]</obj_property>
          <obj_property name="ObjectShortName">q[3:0]</obj_property>
       </wvobject>
-   </wvobject>
-   <wvobject fp_name="/playertest/uut/ctl_txt_end" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">ctl_txt_end</obj_property>
-      <obj_property name="ObjectShortName">ctl_txt_end</obj_property>
    </wvobject>
    <wvobject fp_name="group65" type="group">
       <obj_property name="label">play</obj_property>
@@ -240,6 +236,24 @@
          <obj_property name="ObjectShortName">s_notefin</obj_property>
       </wvobject>
    </wvobject>
+   <wvobject fp_name="/playertest/uut/mem_addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">mem_addr[9:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_addr[9:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_isend" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">s_isend</obj_property>
+      <obj_property name="ObjectShortName">s_isend</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/s_isstart" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">s_isstart</obj_property>
+      <obj_property name="ObjectShortName">s_isstart</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/char_out" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">char_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">char_out[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
    <wvobject fp_name="group67" type="group">
       <obj_property name="label">ram</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -273,39 +287,18 @@
          <obj_property name="ObjectShortName">ram[5]</obj_property>
          <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
-      <wvobject fp_name="/playertest/uut/s_ramaddr_rst" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">s_ramaddr_rst</obj_property>
-         <obj_property name="ObjectShortName">s_ramaddr_rst</obj_property>
-      </wvobject>
       <wvobject fp_name="/playertest/uut/s_ramaddr_nxt_en" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">s_ramaddr_nxt_en</obj_property>
          <obj_property name="ObjectShortName">s_ramaddr_nxt_en</obj_property>
-      </wvobject>
-      <wvobject fp_name="/playertest/uut/s_ramwr_en_bufg" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">s_ramwr_en_bufg</obj_property>
-         <obj_property name="ObjectShortName">s_ramwr_en_bufg</obj_property>
       </wvobject>
       <wvobject fp_name="/playertest/uut/s_ramwr_en" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">s_ramwr_en</obj_property>
          <obj_property name="ObjectShortName">s_ramwr_en</obj_property>
       </wvobject>
-   </wvobject>
-   <wvobject fp_name="/playertest/uut/char_out" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">char_out[7:0]</obj_property>
-      <obj_property name="ObjectShortName">char_out[7:0]</obj_property>
-      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/playertest/uut/mem_addr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">mem_addr[9:0]</obj_property>
-      <obj_property name="ObjectShortName">mem_addr[9:0]</obj_property>
-      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/playertest/uut/s_ramaddr_rst" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">s_ramaddr_rst</obj_property>
-      <obj_property name="ObjectShortName">s_ramaddr_rst</obj_property>
-   </wvobject>
-   <wvobject fp_name="/playertest/uut/s_ramaddr_nxt_en" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">s_ramaddr_nxt_en</obj_property>
-      <obj_property name="ObjectShortName">s_ramaddr_nxt_en</obj_property>
+      <wvobject fp_name="/playertest/uut/char_in" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">char_in[7:0]</obj_property>
+         <obj_property name="ObjectShortName">char_in[7:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
    </wvobject>
 </wave_config>
