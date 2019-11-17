@@ -13,7 +13,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="15" />
+   <WVObjectSize size="16" />
    <wvobject fp_name="/playertest/rst" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -240,6 +240,10 @@
       <obj_property name="ElementShortName">mem_addr[9:0]</obj_property>
       <obj_property name="ObjectShortName">mem_addr[9:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/playertest/uut/ctl_txt_end" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ctl_txt_end</obj_property>
+      <obj_property name="ObjectShortName">ctl_txt_end</obj_property>
    </wvobject>
    <wvobject fp_name="/playertest/uut/s_isend" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">s_isend</obj_property>

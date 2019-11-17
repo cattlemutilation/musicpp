@@ -191,6 +191,7 @@ BEGIN
 		pwr <= '1';		
 		pdb <= "00000000";
 		wait for clk_period;
+		swt <= '1';
 		
 		wait for clk_period*100;
 		

@@ -648,7 +648,8 @@ process(clk, n_state)
 	
 	--check_read_start:				comparator2 port map(char_out, s_isstart);
 	s_isstart <= '0' when char_out = "00000000" else '1';
-	check_write_finish:			comparator port map(char_in, ctl_txt_end);
+	--check_write_finish:			comparator port map(char_in, ctl_txt_end);
+	ctl_txt_end <= swt;
 	check_read_finish: 			comparator port map(char_out, s_isend);
 	--speaker : speaker_output port map(clk, s_spk_rst, play_en, spk);
 
