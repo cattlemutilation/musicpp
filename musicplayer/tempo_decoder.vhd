@@ -43,6 +43,7 @@ begin
 	begin
 		case(tempo) is
 			when "0111100"=>
+				--beat_len <= X"0000011";
 				beat_len <= X"17d7840";
 			when "0111101"=>
 				beat_len <= X"1773753";

@@ -48,7 +48,8 @@ ARCHITECTURE behavior OF playertest IS
          dstb : IN  std_logic;
          pwr : IN  std_logic;
          pwait : OUT  std_logic;
-         swt : IN  std_logic_vector(7 downto 0);
+			swt : in std_logic;
+         --swt : IN  std_logic_vector(7 downto 0);
          led : OUT  std_logic_vector(7 downto 0);
          disp : OUT  std_logic_vector(3 downto 0);
          seg : OUT  std_logic_vector(6 downto 0);
@@ -63,7 +64,8 @@ ARCHITECTURE behavior OF playertest IS
    signal astb : std_logic := '0';
    signal dstb : std_logic := '0';
    signal pwr : std_logic := '0';
-   signal swt : std_logic_vector(7 downto 0) := (others => '0');
+	signal swt : std_logic;
+   --signal swt : std_logic_vector(7 downto 0) := (others => '0');
 
 	--BiDirs
    signal pdb : std_logic_vector(7 downto 0);
@@ -135,17 +137,18 @@ BEGIN
 		dstb <= '0';
 		pwr <= '0';
 		wait for clk_period; -- dwrA
-		wait for clk_period; -- dwrB
+		wait for clk_period; -- dwrB		
+		pdb <= "01100001";
 		dstb <=  '1';
 		pwr <= '1';
 		wait for clk_period; -- ready
 		dstb <= '0';
 		pwr <= '0';
 		wait for clk_period; -- dwrA
-		wait for clk_period;
+		wait for clk_period;		
+		pdb <= "00000001";
 		dstb <=  '1';
 		pwr <= '1';		
-		pdb <= "01100001";
 		wait for clk_period;
 		dstb <= '0';
 		pwr <= '0';
@@ -153,7 +156,7 @@ BEGIN
 		wait for clk_period; -- dwrB
 		dstb <=  '1';
 		pwr <= '1';
-		pdb <= "00000001";
+		pdb <= "01110000";
 		wait for clk_period; -- ready
 		dstb <= '0';
 		pwr <= '0';		
@@ -161,23 +164,23 @@ BEGIN
 		wait for clk_period; -- dwrB
 		dstb <=  '1';
 		pwr <= '1';	
-		pdb <= "01110000";
-		wait for clk_period;
-		dstb <= '0';
-		pwr <= '0';
-		wait for clk_period;
-		wait for clk_period;
-		dstb <=  '1';
-		pwr <= '1';
 		pdb <= "00000001";
 		wait for clk_period;
 		dstb <= '0';
 		pwr <= '0';
 		wait for clk_period;
 		wait for clk_period;
+		pdb <= "01000000";
+		dstb <=  '1';
+		pwr <= '1';
+		wait for clk_period;
+		dstb <= '0';
+		pwr <= '0';
+		wait for clk_period;
+		wait for clk_period;
+		pdb <= "00000000";
 		dstb <=  '1';
 		pwr <= '1';	
-		pdb <= "01000000";
 		wait for clk_period;
 		dstb <= '0';
 		pwr <= '0';

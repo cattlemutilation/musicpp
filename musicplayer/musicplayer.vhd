@@ -41,7 +41,8 @@ entity musicplayer is
 				pwr : in std_logic;
 				pwait : out std_logic;			  
 			  
-			  swt : in std_Logic_vector(7 downto 0);
+			  swt : in std_logic;
+			  --swt : in std_Logic_vector(7 downto 0);
 			  led : out std_logic_Vector(7 downto 0);
 			  disp : out std_logic_vector(3 downto 0);	-- which led is lit
 			  seg : out std_logic_vector(6 downto 0);		-- which segments of 7seg display are lit
@@ -102,7 +103,6 @@ architecture Behavioral of musicplayer is
 
 	component comparator is
 		 Port ( char : in  STD_LOGIC_VECTOR (7 downto 0);
-				  start : out  STD_LOGIC;
 				  finish : out  STD_LOGIC);
 	end component;
 
@@ -160,7 +160,7 @@ architecture Behavioral of musicplayer is
 ------------------------------------------------------------------------
 -- Signals
 ------------------------------------------------------------------------
-	signal char_in: std_logic_vector(7 downto 0);	
+	signal char_in: std_logic_vector(7 downto 0) := "00000000";
 	signal char_out: std_logic_vector(7 downto 0);
 	
 	signal s_isstart : std_logic;
@@ -171,8 +171,8 @@ architecture Behavioral of musicplayer is
 	signal s_tempo_tens : std_logic_vector(3 downto 0);
 	signal s_tempo_ones : std_logic_vector(3 downto 0);
 	
-	signal s_pitch_in : std_logic_vector(7 downto 0);
-	signal s_len_in	: std_logic_vector(7 downto 0);
+	signal s_pitch_in : std_logic_vector(7 downto 0) := "00000000";
+	signal s_len_in	: std_logic_vector(7 downto 0) := "00000000";
 	signal s_tempo_in : std_logic_vector(6 downto 0); -- could vary, just add 0s
 	
 	signal s_fcount : std_logic_vector(18 downto 0); -- decoded frequency
@@ -279,7 +279,7 @@ begin
 ------------------------------------------------------------------------
 FSM_TRANSITON:
 	process(p_state, rst, s_isstart, s_isend, s_notefin, ctl_txt_end, ctlEppAstb, ctlEppWr, ctlEppDstb)
-		begin		
+		begin					
 				case p_state is
 					when init =>
 						n_state <= init;
@@ -353,20 +353,16 @@ FSM_TRANSITON:
 					end if;				
 
 					when start => 
-						if (s_isstart = '1') then -- 60
+						--if (s_isstart = '1') then -- check 60<= char <= 120 if bothered, else just assume correct input
 							n_state <= next_char;	-- <
-						else
-							n_state <= start;
-						end if;
 					when next_char =>
-							n_state <= pitch;
-						
-					when pitch =>					
+							n_state <= pitch;		
 						if s_isend = '1' then -- @
 							n_state <= finish;
-						else
-							n_state <= len;
 						end if;
+						
+					when pitch =>			
+							n_state <= len;
 						
 					when len =>
 						n_state <= play;				
@@ -399,56 +395,6 @@ FSM_TRANSITON:
 ------------------------------------------------------------------------
 -- Control Signals
 ------------------------------------------------------------------------
-MUSICPLAYER_CONTROL:
-
---	process(clk, p_state, s_isstart)
---	begin
---		if falling_edge(clk) then
---			if p_state = init or p_state = reset then
---				s_tempo_in <= "0000000";
---			elsif p_state = start and s_isstart = '1' then
---				s_tempo_in <= char_out(6 downto 0);
---			end if;
---		end if;
---	end process;
-	--s_tempo_in <= char_out(6 downto 0) when p_state = start and s_isstart = '1';--"0111100";
-	s_tempo_in <= "0111100";
-	play_en <= '1' when n_state = play else '0';
-	s_freset_bufg <= '1' when p_state = pitch or s_freqfin = '1' else '0';
-bufg_sfreset : BUFG port map(s_freset_bufg, s_freset);
-	s_lreset <= '1' when p_state = len else '0';
-	s_sreset <= '1' when n_state = len or (s_notefin = '0' and s_semifin = '1') else '0'; --change to tempo later	
-	
-	get_frequency: freq_decoder port map(s_pitch_in, s_fcount);
-	set_output_freq: freq_counter port map(clk, s_freset, play_en, s_fcount, s_freqfin);	-- count pitch oscillation
-	
-	get_note_len: note_len_decoder port map(s_len_in, s_note_len);
-	set_semiq_multiple: note_len_counter port map(clk, s_lreset, s_semifin, s_note_len, s_notefin);	-- count down per semiq in note
-	
-	get_tempo: tempo_decoder port map(s_tempo_in, s_semiq_len);
-	set_semiq_len : semiq_counter port map(clk, s_sreset, play_en, s_semiq_len, s_semifin);	-- count len of semiq
-	
-	check_start_finish: 			comparator port map(char_out, s_isstart, s_isend);
-
-	--------------------------------------------------------------------------------
-	
-	ctl_txt_end <= '1' when char_in = "01000000" else '0'; -- @	
-	
-	addr_count: 			ram_addr_counter port map(clk, s_ramaddr_rst, s_ramaddr_nxt_en, mem_addr);	
-	read_and_write_data: ram port map(clk, s_ramwr_en, mem_addr, char_in, char_out);
-
-	
-		char_in <= busEppIn when s_ramwr_en = '1';		
-		s_ramwr_en_bufg <= '1' when p_state = stEppDwrB and ctlEppDstb = '1' else '0';
-	bufg_ramwr_en : BUFG port map (s_ramwr_en_bufg, s_ramwr_en);
-		
-		s_ramaddr_rst <= '1' when rst = '1' else
-								'1' when p_state = stEppReady and n_state = start else -- try p_state if resets too early
-								'0';
-	s_ramaddr_nxt_en <= '1' when p_state = stEppDwrB and ctlEppDstb = '1' else
-								'1' when p_state = start else
-								'1' when n_state = next_char else 
-								'1' when n_state = pitch else '0';
 
 EPP_CONTROL:
 
@@ -487,6 +433,152 @@ EPP_CONTROL:
 	------------------------------------------------------------------------
 	-- LCD display
 	------------------------------------------------------------------------
+
+	--s_disp_clk_rst <= '1' when p_state = init or p_state = reset else s_disp_clk_zero;
+	--bufg_disp_clk_zero: bufg port map (s_disp_clk_zero_bufg, s_disp_clk_zero);
+	--s_disp_cntr_rst <= '1' when p_state = init or p_state = reset else s_disp_cntr_zero;
+	
+	--s_disp_clk_en <= '0' when p_state = init or p_state = reset else '1';
+	--s_disp_cntr_en <= '0' when p_state = init or p_state = reset else '1';
+	
+	-----------------------------------------------------------------------------	
+	
+	--ctl_txt_end <= '1' when char_in = "01000000" else '0'; -- @	
+	
+	--	char_in <= busEppIn when s_ramwr_en = '1';		
+	--	s_ramwr_en_bufg <= '1' when p_state = stEppDwrB and ctlEppDstb = '1' else '0';
+	--bufg_ramwr_en : BUFG port map (s_ramwr_en_bufg, s_ramwr_en);
+		
+		--s_ramaddr_rst <= '1' when rst = '1' else
+								--'1' when p_state = stEppReady and n_state = start else -- try p_state if resets too early
+								--'0';
+--	s_ramaddr_nxt_en <= '1' when p_state = stEppDwrB and ctlEppDstb = '1' else
+--								'1' when p_state = start else
+--								'1' when n_state = next_char else 
+--								'1' when n_state = pitch else '0';
+								
+	--s_tempo_in <= char_out(6 downto 0) when p_state = start and s_isstart = '1';--"0111100";
+	s_tempo_in <= "0111100";
+	--play_en <= '1' when n_state = play else '0';
+	--s_freset_bufg <= '1' when p_state = pitch or s_freqfin = '1' else '0';
+--bufg_sfreset : BUFG port map(s_freset_bufg, s_freset);
+	--s_lreset <= '1' when p_state = len else '0';
+	--s_sreset <= '1' when n_state = len or (s_notefin = '0' and s_semifin = '1') else '0'; --change to tempo later
+
+------------------------------------------------------------------------
+-- CONTROL CIRCUIT + OUTPUTS
+------------------------------------------------------------------------
+
+FSM_OUTPUTS:
+	process(p_state, char_out, s_freqfin, ctlEppDstB, busEppIn, s_disp_clk_zero, s_disp_cntr_zero)
+	begin
+		--led(0) <= '0';
+		--led(1) <= '0';
+		s_disp_clk_en <= '1';
+		s_disp_cntr_en <= '1';
+		
+		s_ramwr_en <= '0';
+		s_ramaddr_rst <= '0';
+		s_ramaddr_nxt_en <= '0';
+		play_en <= '0';
+		s_freset <= '0';
+		s_lreset <= '0';
+		s_sreset <= '0';
+		case p_state is
+			when init =>
+				s_disp_clk_rst <= '1';
+				s_disp_cntr_rst <= '1';
+				s_disp_clk_en <= '0';
+				s_disp_cntr_en <= '0';
+				spk <= '0';
+			when reset =>
+				s_disp_clk_rst <= '1';
+				s_disp_cntr_rst <= '1';
+				s_disp_clk_en <= '0';
+				s_disp_cntr_en <= '0';
+				s_ramaddr_rst <= '1';
+				led(0) <= '1';
+			when stEppReady =>
+				s_disp_clk_rst <= s_disp_clk_zero;				
+				s_disp_cntr_rst <= s_disp_cntr_zero;
+				if ctl_txt_end = '1' then
+					s_ramaddr_rst <= '1';
+				end if;
+				--led(1) <= '1';
+			when stEppDwrB =>
+				s_disp_clk_rst <= s_disp_clk_zero;				
+				s_disp_cntr_rst <= s_disp_cntr_zero;
+				if ctlEppDstB = '1' then
+					s_ramwr_en <= '1';
+					s_ramaddr_nxt_en <= '1';
+				end if;
+			when start =>
+				s_disp_clk_rst <= s_disp_clk_zero;				
+				s_disp_cntr_rst <= s_disp_cntr_zero;
+			when next_char =>
+				s_disp_clk_rst <= s_disp_clk_zero;				
+				s_disp_cntr_rst <= s_disp_cntr_zero;				
+				s_ramaddr_nxt_en <= '1';
+			when pitch =>
+				s_disp_clk_rst <= s_disp_clk_zero;				
+				s_disp_cntr_rst <= s_disp_cntr_zero;
+				s_ramaddr_nxt_en <= '1';				
+				s_freset <= '1';
+				s_sreset <= '1';
+			when len =>
+				s_disp_clk_rst <= s_disp_clk_zero;				
+				s_disp_cntr_rst <= s_disp_cntr_zero;				
+				--s_ramaddr_nxt_en <= '1';
+				play_en <= '1';
+				s_lreset <= '1';
+			when play =>	
+				s_disp_clk_rst <= s_disp_clk_zero;				
+				s_disp_cntr_rst <= s_disp_cntr_zero;
+				if s_notefin = '0' then
+					play_en <= '1';
+				end if;
+				if s_freqfin = '1' then	
+					spk <= not spk;				
+					s_freset <= '1';
+				end if;
+				if (s_notefin = '0' and s_semifin = '1') then
+					s_sreset <= '1';
+				end if;
+			when finish =>
+				s_disp_clk_rst <= s_disp_clk_zero;				
+				s_disp_cntr_rst <= s_disp_cntr_zero;
+				--led(0) <= '1';
+				spk <= '0';
+			when others =>	
+				s_disp_clk_rst <= s_disp_clk_zero;				
+				s_disp_cntr_rst <= s_disp_cntr_zero;					
+				spk <= '0';				
+		end case;	
+	end process;
+	
+------------------------------------------------------------------------
+-- DATAPATH FOR MUSICPLAYER
+------------------------------------------------------------------------
+FSM_DATAPATH:
+	process(p_state, s_freset, ctlEppDstB, busEppIn, char_out)
+	begin
+		case p_state is
+			when stEppDwrB =>
+				if ctlEppDstB = '1' then
+					char_in <= busEppIn;
+				end if;
+			when start => 
+			when next_char =>		
+				s_pitch_in <= char_out;			
+			when pitch =>	
+			when len =>					
+				s_len_in <= char_out;
+			when play =>	
+			when finish =>			
+			when others =>			
+		end case;	
+	end process;
+	-------------------------------------lcd--------------------------------------------
 	get_tempo_digits: 			tempo_dig_breakdown port map(s_tempo_in, s_tempo_hundr, s_tempo_tens, s_tempo_ones);
 	dig_to_7seg : 					bin_to_7seg port map(s_curr_digit, s_cathode);
 	disp_4ms_count: 				seg_disp_clk_4ms port map(clk, s_disp_clk_rst, s_disp_clk_en, s_disp_clk_zero_bufg);
@@ -495,49 +587,24 @@ EPP_CONTROL:
 	select_digit_to_display : 	mux_3to1_4b port map(s_disp_cntr_cnt, s_tempo_hundr, s_tempo_tens, s_tempo_ones, s_curr_digit);
 	disp <= s_anode;
 	seg <= s_cathode;
-
-	s_disp_clk_rst <= '1' when p_state = init or p_state = reset else s_disp_clk_zero;
-	bufg_disp_clk_zero: bufg port map (s_disp_clk_zero_bufg, s_disp_clk_zero);
-	s_disp_cntr_rst <= '1' when p_state = init or p_state = reset else s_disp_cntr_zero;
+		
+	------------------------------------ram---------------------------------------------
+	addr_count: 			ram_addr_counter port map(clk, s_ramaddr_rst, s_ramaddr_nxt_en, mem_addr);	
+	read_and_write_data: ram port map(clk, s_ramwr_en, mem_addr, char_in, char_out);
 	
-	s_disp_clk_en <= '0' when p_state = init or p_state = reset else '1';
-	s_disp_cntr_en <= '0' when p_state = init or p_state = reset else '1';
+		
+	------------------------------------musicplayer-------------------------------------
+	get_frequency: freq_decoder port map(s_pitch_in, s_fcount);
+	set_output_freq: freq_counter port map(clk, s_freset, play_en, s_fcount, s_freqfin);	-- count pitch oscillation
 	
-	-----------------------------------------------------------------------------	
-
-------------------------------------------------------------------------
--- Datapath
-------------------------------------------------------------------------
-
-
-FSM_DATAPATH:
-	process(p_state, s_freset, char_out)
-	begin
-		case p_state is
-			when start => 
-				spk <= '0';
-			when next_char =>
-				spk <= '0';
-				
-			when len =>
-				spk <= '0';
-				
-				s_len_in <= char_out;
-			when pitch =>		
-				spk <= '0';
-				s_pitch_in <= char_out;
-			when play =>	
-				if(s_freset = '1') then
-					spk <= not spk;
-				end if;
-			when finish =>
-				spk <= '0';
-				
-			when others =>
-				spk <= '0';
-				
-		end case;	
-	end process;
+	get_note_len: note_len_decoder port map(s_len_in, s_note_len);
+	set_semiq_multiple: note_len_counter port map(clk, s_lreset, s_semifin, s_note_len, s_notefin);	-- count down per semiq in note
+	
+	get_tempo: tempo_decoder port map(s_tempo_in, s_semiq_len);
+	set_semiq_len : semiq_counter port map(clk, s_sreset, play_en, s_semiq_len, s_semifin);	-- count len of semiq
+	
+	check_write_finish:			comparator port map(char_in, ctl_txt_end);
+	check_read_finish: 			comparator port map(char_out, s_isend);
 
 ------------------------------------------------------------------------
 -- EPP Data registers

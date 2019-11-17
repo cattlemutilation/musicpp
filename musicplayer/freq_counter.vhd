@@ -44,10 +44,11 @@ signal count : std_logic_vector(18 downto 0);
 begin
 	process(clk, reset)
 		begin					
-			if(reset = '1') then
-				count <= max_count;
-			elsif (falling_edge(clk)) then
-				if en = '1' then
+			if (falling_edge(clk)) then
+			
+				if(reset = '1') then
+					count <= max_count;
+				elsif en = '1' then
 					count <= count - 1;
 				end if;
 			end if;

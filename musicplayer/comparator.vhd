@@ -33,16 +33,13 @@ use ieee.std_logic_unsigned.all;
 
 entity comparator is
     Port ( char : in  STD_LOGIC_VECTOR (7 downto 0);
-           start : out  STD_LOGIC;
            finish : out  STD_LOGIC);
 end comparator;
 
 architecture Behavioral of comparator is
 
 begin
-	start <= '0' when char = "00000000" else '1';
 	finish <= '1' when char = "01000000" else '0';
-
 
 end Behavioral;
 
