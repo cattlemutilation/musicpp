@@ -120,7 +120,7 @@ architecture Behavioral of musicplayer is
 
 	component seg_disp_clk_4ms is
 		 Port ( clk : in  STD_LOGIC;
-				  rst : in  STD_LOGIC;
+				  --rst : in  STD_LOGIC;
 				  en : in  STD_LOGIC;
 				  zero : out  STD_LOGIC);
 	end component;
@@ -470,10 +470,10 @@ EPP_CONTROL:
 ------------------------------------------------------------------------
 
 FSM_OUTPUTS:
-	process(p_state, char_out, s_freqfin, ctlEppDstB, busEppIn, s_disp_clk_zero, s_disp_cntr_zero)
+	process(p_state, char_out, s_freqfin, ctlEppDstB, busEppIn, ctl_txt_end, s_notefin, s_semifin, s_disp_clk_zero, s_disp_cntr_zero)
 	begin
-		--led(0) <= '0';
-		--led(1) <= '0';
+		led(0) <= '0';
+		led(1) <= '0';
 		s_disp_clk_en <= '1';
 		s_disp_cntr_en <= '1';
 		
@@ -486,53 +486,53 @@ FSM_OUTPUTS:
 		s_sreset <= '0';
 		case p_state is
 			when init =>
-				s_disp_clk_rst <= '1';
+				--s_disp_clk_rst <= '1';
 				s_disp_cntr_rst <= '1';
 				s_disp_clk_en <= '0';
 				s_disp_cntr_en <= '0';
 				spk <= '0';
 			when reset =>
-				s_disp_clk_rst <= '1';
+				--s_disp_clk_rst <= '1';
 				s_disp_cntr_rst <= '1';
 				s_disp_clk_en <= '0';
 				s_disp_cntr_en <= '0';
 				s_ramaddr_rst <= '1';
 				led(0) <= '1';
 			when stEppReady =>
-				s_disp_clk_rst <= s_disp_clk_zero;				
+				--s_disp_clk_rst <= s_disp_clk_zero;				
 				s_disp_cntr_rst <= s_disp_cntr_zero;
 				if ctl_txt_end = '1' then
 					s_ramaddr_rst <= '1';
 				end if;
-				--led(1) <= '1';
+				led(1) <= '1';
 			when stEppDwrB =>
-				s_disp_clk_rst <= s_disp_clk_zero;				
+				--s_disp_clk_rst <= s_disp_clk_zero;				
 				s_disp_cntr_rst <= s_disp_cntr_zero;
 				if ctlEppDstB = '1' then
 					s_ramwr_en <= '1';
 					s_ramaddr_nxt_en <= '1';
 				end if;
 			when start =>
-				s_disp_clk_rst <= s_disp_clk_zero;				
+				--s_disp_clk_rst <= s_disp_clk_zero;				
 				s_disp_cntr_rst <= s_disp_cntr_zero;
 			when next_char =>
-				s_disp_clk_rst <= s_disp_clk_zero;				
+				--s_disp_clk_rst <= s_disp_clk_zero;				
 				s_disp_cntr_rst <= s_disp_cntr_zero;				
 				s_ramaddr_nxt_en <= '1';
 			when pitch =>
-				s_disp_clk_rst <= s_disp_clk_zero;				
+				--s_disp_clk_rst <= s_disp_clk_zero;				
 				s_disp_cntr_rst <= s_disp_cntr_zero;
 				s_ramaddr_nxt_en <= '1';				
 				s_freset <= '1';
 				s_sreset <= '1';
 			when len =>
-				s_disp_clk_rst <= s_disp_clk_zero;				
+				--s_disp_clk_rst <= s_disp_clk_zero;				
 				s_disp_cntr_rst <= s_disp_cntr_zero;				
 				--s_ramaddr_nxt_en <= '1';
 				play_en <= '1';
 				s_lreset <= '1';
 			when play =>	
-				s_disp_clk_rst <= s_disp_clk_zero;				
+				--s_disp_clk_rst <= s_disp_clk_zero;				
 				s_disp_cntr_rst <= s_disp_cntr_zero;
 				if s_notefin = '0' then
 					play_en <= '1';
@@ -545,12 +545,12 @@ FSM_OUTPUTS:
 					s_sreset <= '1';
 				end if;
 			when finish =>
-				s_disp_clk_rst <= s_disp_clk_zero;				
+				--s_disp_clk_rst <= s_disp_clk_zero;				
 				s_disp_cntr_rst <= s_disp_cntr_zero;
-				--led(0) <= '1';
+				led(0) <= '1';
 				spk <= '0';
 			when others =>	
-				s_disp_clk_rst <= s_disp_clk_zero;				
+				--s_disp_clk_rst <= s_disp_clk_zero;				
 				s_disp_cntr_rst <= s_disp_cntr_zero;					
 				spk <= '0';				
 		end case;	
@@ -581,7 +581,7 @@ FSM_DATAPATH:
 	-------------------------------------lcd--------------------------------------------
 	get_tempo_digits: 			tempo_dig_breakdown port map(s_tempo_in, s_tempo_hundr, s_tempo_tens, s_tempo_ones);
 	dig_to_7seg : 					bin_to_7seg port map(s_curr_digit, s_cathode);
-	disp_4ms_count: 				seg_disp_clk_4ms port map(clk, s_disp_clk_rst, s_disp_clk_en, s_disp_clk_zero_bufg);
+	disp_4ms_count: 				seg_disp_clk_4ms port map(clk, s_disp_clk_en, s_disp_clk_zero);
 	disp_anode_rotation: 		seg_disp_counter port map(s_disp_clk_zero, s_disp_cntr_rst, s_disp_cntr_en, s_disp_cntr_cnt, s_disp_cntr_zero);
 	decode_to_anode : 			seg_disp_decoder port map(s_disp_cntr_cnt, s_anode);	-- produces anode mask
 	select_digit_to_display : 	mux_3to1_4b port map(s_disp_cntr_cnt, s_tempo_hundr, s_tempo_tens, s_tempo_ones, s_curr_digit);

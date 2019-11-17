@@ -33,7 +33,7 @@ use ieee.std_logic_unsigned.all;
 
 entity seg_disp_clk_4ms is
     Port ( clk : in  STD_LOGIC;
-           rst : in  STD_LOGIC;
+          -- rst : in  STD_LOGIC;
            en : in  STD_LOGIC;
            zero : out  STD_LOGIC);
 end seg_disp_clk_4ms;
@@ -43,12 +43,12 @@ architecture Behavioral of seg_disp_clk_4ms is
 signal count : std_logic_vector(18 downto 0);
 
 begin
-	process(rst, clk)
+	process(clk)
 	begin		
-		if(rst = '1') then
-			count <= "1100001101001111111";	-- counts 4 ms for each digit display 400,000
-			zero <= '0';
-		elsif(falling_edge(clk)) then
+--		if(rst = '1') then
+--			count <= "1100001101001111111";	-- counts 4 ms for each digit display 400,000
+--			zero <= '0';
+		if(falling_edge(clk)) then
 			if en = '1' then
 				if count = 0 then
 					count <= "1100001101001111111";
