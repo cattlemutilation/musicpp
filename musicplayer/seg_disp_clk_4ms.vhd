@@ -48,7 +48,7 @@ begin
 --		if(rst = '1') then
 --			count <= "1100001101001111111";	-- counts 4 ms for each digit display 400,000
 --			zero <= '0';
-		if(falling_edge(clk)) then
+		if(rising_edge(clk)) then
 			if en = '1' then
 				if count = 0 then
 					count <= "1100001101001111111";

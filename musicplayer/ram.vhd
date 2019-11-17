@@ -51,7 +51,7 @@ begin
 	variable var_addr : integer;
 	
 	begin
-		if (falling_edge(clk)) then
+		if (rising_edge(clk)) then
 			var_addr := conv_integer(addr);
 			if wr_en = '1' then
 				ram(var_addr) <= data_in;

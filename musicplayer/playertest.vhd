@@ -195,9 +195,6 @@ BEGIN
 		
 		wait for clk_period*100;
 		
-		
-		
-		
 
       wait for clk_period*10;
 

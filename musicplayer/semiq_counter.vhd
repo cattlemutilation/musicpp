@@ -46,7 +46,7 @@ signal count: std_logic_vector(27 downto 0);
 begin
 	process(clk, reset, semi_len)
 		begin
-			if(clk'event and clk = '0') then
+			if(rising_edge(clk)) then
 				if (reset = '1') then
 					count <= semi_len;
 				elsif (en = '1') then

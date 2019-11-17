@@ -231,8 +231,8 @@ architecture Behavioral of musicplayer is
 -- combination logic to generate outputs which should produce glitch
 -- free outputs. 
 
-	constant init		 : std_logic_vector(7 downto 0) := "0000" & "0000";
-	constant stEppReady : std_logic_vector(7 downto 0) := "0001" & "0000";
+	--constant init		 : std_logic_vector(7 downto 0) := "0000" & "0000";
+	constant stEppReady : std_logic_vector(7 downto 0) := "0000" & "0000";
 	constant stEppAwrA : std_logic_vector(7 downto 0) := "0001" & "0100";
 	constant stEppAwrB : std_logic_vector(7 downto 0) := "0010" & "0001";
 	constant stEppArdA : std_logic_vector(7 downto 0) := "0011" & "0010";
@@ -250,8 +250,8 @@ architecture Behavioral of musicplayer is
 	constant play		 : std_logic_vector(7 downto 0) := "1110" & "0001";
 	constant finish	 : std_logic_vector(7 downto 0) := "1111" & "0001";
 
-	signal p_state: std_logic_vector(7 downto 0) := init;
-	signal n_state : std_logic_vector(7 downto 0) := init;
+	signal p_state: std_logic_vector(7 downto 0) := stEppReady;
+	signal n_state : std_logic_vector(7 downto 0) := stEppReady;
 	
 --type state_type is (init, reset, start, next_char, len, pitch, play, finish);
 --signal p_state, n_state : state_type;
@@ -287,9 +287,9 @@ FSM_TRANSITON:
 	process(p_state, rst, s_isstart, s_isend, s_notefin, ctl_txt_end, ctlEppAstb, ctlEppWr, ctlEppDstb)
 		begin					
 				case p_state is
-					when init =>
-						n_state <= init;
-						
+--					when init =>
+--						n_state <= init;
+--						
 					when reset =>
 						if (rst = '0') then	-- if button is let go
 							n_state <= stEppReady;	
@@ -387,7 +387,7 @@ FSM_TRANSITON:
 						n_state <= finish;
 						
 					when others => 	--unknown state
-						n_state <= init;
+						n_state <= stEppReady;
 						--led_bufg(0) <= '1';
 
 				end case;
@@ -395,7 +395,7 @@ FSM_TRANSITON:
 	
 	process(clk)
 		begin
-			if falling_edge(clk) then			
+			if rising_edge(clk) then			
 				if (rst = '1') then		-- push button pushed
 					p_state <= reset;
 				else
@@ -408,7 +408,8 @@ FSM_TRANSITON:
 	led(1) <= '1' when p_state = stEppReady else '0';
 	led(7) <= '1' when p_state = play else '0';
 	led(6) <= '1' when p_state = start else '0';
-	led(5 downto 2) <= "0000";
+	led(5 downto 4) <= "00";
+	led(2) <= '0';
 ------------------------------------------------------------------------
 -- Control Signals
 ------------------------------------------------------------------------
@@ -489,7 +490,7 @@ EPP_CONTROL:
 FSM_OUTPUTS:
 	process(p_state, n_state, s_isstart, s_isend, char_out, s_freqfin, ctlEppDstB, busEppIn, ctl_txt_end, s_notefin, s_semifin, s_disp_clk_zero, s_disp_cntr_zero)
 	begin
-	
+		led(3) <= '0';
 		s_disp_clk_en <= '1';
 		s_disp_cntr_en <= '1';
 		
@@ -501,10 +502,10 @@ FSM_OUTPUTS:
 		s_lreset <= '0';
 		s_sreset <= '0';
 		case p_state is
-			when init =>
-				s_disp_cntr_rst <= '1';
-				s_disp_clk_en <= '0';
-				s_disp_cntr_en <= '0';
+--			when init =>
+--				s_disp_cntr_rst <= '1';
+--				s_disp_clk_en <= '0';
+--				s_disp_cntr_en <= '0';
 			when reset =>
 				s_disp_cntr_rst <= '1';
 				s_disp_clk_en <= '0';
@@ -557,13 +558,14 @@ FSM_OUTPUTS:
 			when finish =>			
 				s_disp_cntr_rst <= s_disp_cntr_zero;
 			when others =>				
-				s_disp_cntr_rst <= s_disp_cntr_zero;				
+				s_disp_cntr_rst <= s_disp_cntr_zero;		
+				led(3) <= '1';
 		end case;	
 	end process;
 	
 	process(clk, p_state, s_freqfin)
 	begin
-		if falling_Edge(clk) then
+		if rising_edge(clk) then
 			if p_State = play then
 				 if s_freqfin = '1' then
 					spk <= not spk;
@@ -595,7 +597,7 @@ FSM_OUTPUTS:
 	
 process(clk, p_state, ctlEppDstB)
 	begin
-		if falling_edge(clk) then
+		if rising_edge(clk) then
 			if p_state = stEppDwrB and ctlEppDstB = '1' then
 				char_in <= busEppIn;
 			end if;
@@ -604,7 +606,7 @@ process(clk, p_state, ctlEppDstB)
 		
 process(clk, n_state, char_out)
 	begin
-		if falling_edge(clk) then
+		if rising_edge(clk) then
 			if n_state = next_char then
 				s_pitch_in <= char_out;
 			end if;
@@ -613,7 +615,7 @@ process(clk, n_state, char_out)
 		
 process(clk, n_state)
 	begin
-		if falling_edge(clk) then
+		if rising_edge(clk) then
 			if n_state = len then
 				s_len_in <= char_out;
 			end if;
@@ -653,6 +655,19 @@ process(clk, n_state)
 	check_read_finish: 			comparator port map(char_out, s_isend);
 	--speaker : speaker_output port map(clk, s_spk_rst, play_en, spk);
 
+
+------------------------------------------------------------------------
+-- EPP Address register
+------------------------------------------------------------------------
+process (clk, ctlEppAwr)
+begin
+	if rising_Edge(clk) then
+		if ctlEppAwr = '1' then
+			regEppAdr <= busEppIn(3 downto 0);
+		end if;
+	end if;
+end process;
+
 ------------------------------------------------------------------------
 -- EPP Data registers
 ------------------------------------------------------------------------
@@ -665,7 +680,7 @@ process(clk, n_state)
 -- address in the address register to determine which register to write.
 	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if falling_edge(clk) then
+			if rising_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0000" then
 					regData0 <= busEppIn;
 				end if;
@@ -674,7 +689,7 @@ process(clk, n_state)
 
 	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if falling_edge(clk) then
+			if rising_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0001" then
 					regData1 <= busEppIn;
 				end if;
@@ -683,7 +698,7 @@ process(clk, n_state)
 
 	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if falling_edge(clk) then
+			if rising_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0010" then
 					regData2 <= busEppIn;
 				end if;
@@ -692,7 +707,7 @@ process(clk, n_state)
 
 	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if falling_edge(clk) then
+			if rising_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0011" then
 					regData3 <= busEppIn;
 				end if;
@@ -701,7 +716,7 @@ process(clk, n_state)
 
 	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if falling_edge(clk) then
+			if rising_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0100" then
 					regData4 <= busEppIn;
 				end if;
@@ -710,7 +725,7 @@ process(clk, n_state)
 
 	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if falling_edge(clk) then
+			if rising_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0101" then
 					regData5 <= busEppIn;
 				end if;
@@ -719,7 +734,7 @@ process(clk, n_state)
 
 	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if falling_edge(clk) then
+			if rising_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0110" then
 					regData6 <= busEppIn;
 				end if;
@@ -728,7 +743,7 @@ process(clk, n_state)
 
 	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if falling_edge(clk) then
+			if rising_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "0111" then
 					regData7 <= busEppIn;
 				end if;
@@ -738,7 +753,7 @@ process(clk, n_state)
 
 	process (clk, regEppAdr, ctlEppDwr, busEppIn)
 		begin
-			if falling_edge(clk) then
+			if rising_edge(clk) then
 				if ctlEppDwr = '1' and regEppAdr = "1010" then
 					--regLed <= busEppIn;
 				end if;
