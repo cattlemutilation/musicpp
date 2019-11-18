@@ -176,6 +176,7 @@ architecture Behavioral of musicplayer is
 	signal char_out: std_logic_vector(7 downto 0);
 	
 	--signal s_spk_rst : std_logic;
+	signal s_rst : std_logic;
 	
 	signal s_isstart : std_logic;
 	signal s_isend : std_logic;
@@ -284,19 +285,19 @@ begin
 -- State Transition Logic
 ------------------------------------------------------------------------
 FSM_TRANSITON:
-	process(p_state, rst, s_isstart, s_isend, s_notefin, ctl_txt_end, ctlEppAstb, ctlEppWr, ctlEppDstb)
+	process(p_state, s_rst, s_isstart, s_isend, s_notefin, ctl_txt_end, ctlEppAstb, ctlEppWr, ctlEppDstb)
 		begin					
+				led(3) <= '0';
 				case p_state is
 --					when init =>
 --						n_state <= init;
 --						
 					when reset =>
-						if (rst = '0') then	-- if button is let go
+						if (s_rst = '0') then	-- if button is let go
 							n_state <= stEppReady;	
 						else						-- button still being held
 							n_state <= reset;
 						end if;
-						--led_bufg(0) <= '0';
 				
 					-- Idle state waiting for the beginning of an EPP cycle
 					when stEppReady =>
@@ -387,8 +388,8 @@ FSM_TRANSITON:
 						n_state <= finish;
 						
 					when others => 	--unknown state
-						n_state <= stEppReady;
-						--led_bufg(0) <= '1';
+						n_state <= stEppReady;	
+						led(3) <= '1';
 
 				end case;
 		end process;
@@ -396,12 +397,19 @@ FSM_TRANSITON:
 	process(clk)
 		begin
 			if rising_edge(clk) then			
-				if (rst = '1') then		-- push button pushed
+				if (s_rst = '1') then		-- push button pushed
 					p_state <= reset;
 				else
 					p_state <= n_state;
 				end if;
 			end if;
+	end process;
+	
+	process(clk, rst)
+	begin
+		if rising_Edge(clk) then
+			s_rst <= rst;
+		end if;	
 	end process;
 	
 	led(0) <= '1' when p_state = reset else '0';
@@ -476,7 +484,6 @@ EPP_CONTROL:
 --								'1' when n_state = pitch else '0';
 								
 	--s_tempo_in <= char_out(6 downto 0) when p_state = start and s_isstart = '1';--"0111100";
-	s_tempo_in <= "0111100";
 	--play_en <= '1' when n_state = play else '0';
 	--s_freset_bufg <= '1' when p_state = pitch or s_freqfin = '1' else '0';
 --bufg_sfreset : BUFG port map(s_freset_bufg, s_freset);
@@ -490,7 +497,6 @@ EPP_CONTROL:
 FSM_OUTPUTS:
 	process(p_state, n_state, s_isstart, s_isend, char_out, s_freqfin, ctlEppDstB, busEppIn, ctl_txt_end, s_notefin, s_semifin, s_disp_clk_zero, s_disp_cntr_zero)
 	begin
-		led(3) <= '0';
 		s_disp_clk_en <= '1';
 		s_disp_cntr_en <= '1';
 		
@@ -558,8 +564,7 @@ FSM_OUTPUTS:
 			when finish =>			
 				s_disp_cntr_rst <= s_disp_cntr_zero;
 			when others =>				
-				s_disp_cntr_rst <= s_disp_cntr_zero;		
-				led(3) <= '1';
+				s_disp_cntr_rst <= s_disp_cntr_zero;	
 		end case;	
 	end process;
 	
@@ -594,6 +599,9 @@ FSM_OUTPUTS:
 --			when others =>			
 --		end case;	
 --	end process;
+
+
+s_tempo_in <= "0111100"; --static tempo, testing with txt file without the first tempo byte
 	
 process(clk, p_state, ctlEppDstB)
 	begin
@@ -648,13 +656,42 @@ process(clk, n_state)
 	set_semiq_len : semiq_counter port map(clk, s_sreset, play_en, s_semiq_len, s_semifin);	-- count len of semiq
 	
 	
-	--check_read_start:				comparator2 port map(char_out, s_isstart);
+	--check_read_start:				comparator2 port map(char_out, s_isstart); for some reason this module was returning undefind s_isstart
 	s_isstart <= '0' when char_out = "00000000" else '1';
-	--check_write_finish:			comparator port map(char_in, ctl_txt_end);
-	ctl_txt_end <= swt;
-	check_read_finish: 			comparator port map(char_out, s_isend);
-	--speaker : speaker_output port map(clk, s_spk_rst, play_en, spk);
+	
+--------------------------signals possibly causing glitches, clocking them leads to timing error in simulation.---------------------	
+	
+--	process(clk, char_out)
+--	begin
+--		if rising_edge(clk) then
+--			if char_out = "00000000" then
+--				s_isstart <= '0';
+--			else
+--				s_isstart <= '1';
+--			end if;
+--		end if;
+--	end process;
 
+	check_read_finish: 			comparator port map(char_out, s_isend);
+--	process(clk, char_out)
+--	begin
+--		if rising_edge(clk) then
+--			if char_out = "01000000" then
+--				s_isend <= '1';
+--			else
+--				s_isend <= '0';
+--			end if;
+--		end if;
+--	end process;
+
+
+	ctl_txt_end <= swt;	
+--	process(clk, swt)
+--	begin
+--		if rising_edge(clk) then			
+--			ctl_txt_end <= swt;
+--		end if;
+--	end process;
 
 ------------------------------------------------------------------------
 -- EPP Address register

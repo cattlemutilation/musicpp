@@ -131,7 +131,8 @@ BEGIN
 		pwr <= '0';
 		wait for clk_period; -- dwrA
 		wait for clk_period; -- dwrB
-		pdb <= "01111000";
+		--pdb <= "01111000";
+		pdb <= "00000000";
 		dstb <=  '1';
 		pwr <= '1';
 		wait for clk_period; -- ready
